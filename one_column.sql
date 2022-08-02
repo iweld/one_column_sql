@@ -16,14 +16,18 @@ CREATE TABLE WORDS (
 -- Import csv from wheverever you have it stored.  Note the delimiter.
 
 COPY WORDS
-FROM '** Path to your **/csv/words.csv'
+FROM
+'** Path to your **/csv/words.csv'
 DELIMITER ',';
 
 -- Test table by randomly grabbing an awesome word from the record
 
-SELECT WORD AS great_word
-FROM WORDS
-WHERE WORD = 'shaker';
+SELECT
+	WORD AS great_word
+FROM
+	WORDS
+WHERE
+	WORD = 'shaker';
 
 -- Results:
 
@@ -31,10 +35,12 @@ great_word|
 ----------+
 shaker    |
 
--- How many words are we starting with?
+-- How many words are in our dataset?
 
-SELECT COUNT(*)
-FROM WORDS;
+SELECT
+	COUNT(*)
+FROM
+	WORDS;
 
 -- Results:
 
@@ -44,21 +50,73 @@ count |
 
 -- How many words start with the letter 'j'?
 
-SELECT COUNT(*) AS j_count
-FROM WORDS
-WHERE WORD like 'j%';
+SELECT
+	COUNT(*) AS j_count
+FROM
+	WORDS
+WHERE
+	WORD LIKE 'j%';
 
 -- Results:
 
 j_count|
 -------+
    2840|
+   
+-- How many words are x letters long?
+   
+SELECT
+	char_length(word) AS word_length,
+	count(*) AS word_count
+FROM
+	words
+GROUP BY
+	word_length
+ORDER BY
+	word_length
+
+-- Results:
+
+word_length|word_count|
+-----------+----------+
+          1|        26|
+          2|       427|
+          3|      2130|
+          4|      7186|
+          5|     15918|
+          6|     29874|
+          7|     41998|
+          8|     51627|
+          9|     53402|
+         10|     45872|
+         11|     37539|
+         12|     29125|
+         13|     20944|
+         14|     14149|
+         15|      8846|
+         16|      5182|
+         17|      2967|
+         18|      1471|
+         19|       760|
+         20|       359|
+         21|       168|
+         22|        74|
+         23|        31|
+         24|        12|
+         25|         8|
+         27|         3|
+         28|         2|
+         29|         2|
+         31|         1|
 
 -- How many words contain 'jaime'?
 
-SELECT COUNT(*)
-FROM WORDS
-WHERE WORD like '%jaime%';
+SELECT
+	COUNT(*)
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%jaime%';
 
 -- Results:
 
@@ -68,9 +126,12 @@ count|
 
 -- There's only one and only.  How many words contain 'shaker'?
 
-SELECT COUNT(*)
-FROM WORDS
-WHERE WORD like '%shaker%';
+SELECT
+	COUNT(*)
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
 
 -- Results:
 
@@ -80,15 +141,21 @@ count|
 
 -- 13? Must be a lucky word.  What are those words?
 
-SELECT WORD
-FROM WORDS
-WHERE WORD like '%shaker%';
+SELECT
+	WORD
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
 
 -- Speaking of 13.  How many words are 13 letters long?
 
-SELECT COUNT(*)
-FROM WORDS
-WHERE LENGTH(WORD) = 13;
+SELECT
+	COUNT(*)
+FROM
+	WORDS
+WHERE
+	LENGTH(WORD) = 13;
 
 -- Results:
 
@@ -110,11 +177,18 @@ shakers     |
 
 -- What is the longest word in this table and how many characters does it contain?
 
-SELECT WORD as "Longest Word", length(word) as "Word Length" 
-FROM WORDS
-WHERE LENGTH(WORD) =
-		(SELECT MAX(LENGTH(WORD))
-			FROM WORDS);
+SELECT 
+	WORD AS "Longest Word", 
+	length(word) AS "Word Length"
+FROM
+	WORDS
+WHERE
+	LENGTH(WORD) =
+		(
+	SELECT
+		MAX(LENGTH(WORD))
+	FROM
+		WORDS);
 		
 -- Results:
 		
@@ -124,8 +198,10 @@ dichlorodiphenyltrichloroethane|         31|
 
 -- What is the Average word length?
 
-SELECT AVG(LENGTH(WORD)) avg_length
-FROM WORDS;
+SELECT
+	AVG(LENGTH(WORD)) avg_length
+FROM
+	WORDS;
 
 -- Results:
 
@@ -135,8 +211,10 @@ avg_length        |
 
 -- That returned a floating point value.  Can you round that number to two decimal places?
 
-SELECT ROUND(AVG(LENGTH(WORD)), 2)
-FROM WORDS;
+SELECT
+	ROUND(AVG(LENGTH(WORD)), 2)
+FROM
+	WORDS;
 
 -- Results:
 
@@ -146,8 +224,11 @@ round|
 
 -- What is the Median length?
 
-SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY length(word)) AS median_length
-FROM words;
+SELECT
+	PERCENTILE_CONT(0.5) WITHIN GROUP(
+	ORDER BY length(word)) AS median_length
+FROM
+	words;
 
 -- Results:
 
@@ -157,8 +238,11 @@ median_length|
 
 -- What is the 90th percentile length?
 
-SELECT PERCENTILE_CONT(0.9) WITHIN GROUP(ORDER BY length(word)) AS "90th_percentile"
-FROM words;
+SELECT
+	PERCENTILE_CONT(0.9) WITHIN GROUP(
+	ORDER BY length(word)) AS "90th_percentile"
+FROM
+	words;
 
 -- Results:
 
@@ -168,8 +252,11 @@ FROM words;
 
 -- What is the 25th percentile length?
 
-SELECT PERCENTILE_CONT(0.25) WITHIN GROUP(ORDER BY length(word)) AS "25th_percentile" 
-FROM words;
+SELECT
+	PERCENTILE_CONT(0.25) WITHIN GROUP(
+	ORDER BY length(word)) AS "25th_percentile"
+FROM
+	words;
 
 -- Results:
 
@@ -180,11 +267,15 @@ FROM words;
 -- What is the word count for every letter in the words table?
 -- Sort by letter.
 
-SELECT SUBSTRING(LOWER(WORD),1,1) AS LETTER,
+SELECT
+	SUBSTRING(LOWER(WORD), 1, 1) AS LETTER,
 	COUNT(*)
-FROM WORDS
-GROUP BY LETTER
-ORDER BY LETTER;
+FROM
+	WORDS
+GROUP BY
+	LETTER
+ORDER BY
+	LETTER;
 
 -- Results:
 
@@ -219,13 +310,18 @@ z     | 1387|
 
 -- What row number is the word 'shaker' in?  
 
-SELECT ROW_NUM AS "Row Number",
+SELECT
+	ROW_NUM AS "Row Number",
 	WORD AS "Cool Last Name"
 FROM
-	(SELECT WORDS.*,
+	(
+	SELECT
+		WORDS.*,
 			ROW_NUMBER() OVER() AS ROW_NUM
-		FROM WORDS) AS ROW
-WHERE WORD = 'shaker';
+	FROM
+		WORDS) AS ROW
+WHERE
+	WORD = 'shaker';
 
 -- Results:
 
@@ -235,9 +331,12 @@ Row Number|Cool Last Name|
 
 -- Find the count of all the palindromes (Excluding single and two letter words)
 
-SELECT COUNT(*) AS n_palindromes
-FROM WORDS
-WHERE WORD = REVERSE(WORD)
+SELECT
+	COUNT(*) AS n_palindromes
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
 	AND LENGTH(WORD) >= 3;
 
 -- Results:
@@ -248,11 +347,15 @@ n_palindromes|
 
 -- Give me the first 10 of all the palindromes (Excluding single and two letter words)
 
-SELECT WORD AS palindromes
-FROM WORDS
-WHERE WORD = REVERSE(WORD)
+SELECT
+	WORD AS palindromes
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
 	AND LENGTH(WORD) >= 3
-ORDER BY WORD 
+ORDER BY
+	WORD
 LIMIT 10;
 
 -- Results:
@@ -273,12 +376,16 @@ aga        |
 -- Give me the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
-SELECT WORD
-FROM WORDS
-WHERE WORD = REVERSE(WORD)
+SELECT
+	WORD AS palindrome
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
 	AND LENGTH(WORD) >= 3
-	and word like 's%'
-ORDER BY WORD 
+	AND word LIKE 's%'
+ORDER BY
+	WORD
 LIMIT 1 
 OFFSET 14;
 
@@ -291,13 +398,18 @@ sooloos|
 -- Find the row number for every month of the year and
 -- sort them in chronological order
 
-SELECT ROW_NUM AS "Row Number",
+SELECT
+	ROW_NUM AS "Row Number",
 	WORD AS "Month"
 FROM
-	(SELECT WORDS.*,
+	(
+	SELECT
+		WORDS.*,
 			ROW_NUMBER() OVER() AS ROW_NUM
-		FROM WORDS) AS ROW
-WHERE WORD in (
+	FROM
+		WORDS) AS ROW
+WHERE
+	WORD IN (
 	'january',
 	'february',
 	'march',
@@ -310,7 +422,8 @@ WHERE WORD in (
 	'october',
 	'november',
 	'december')
-ORDER BY TO_DATE(WORD,'Month');
+ORDER BY
+	TO_DATE(WORD, 'Month');
 
 -- Results:
 
@@ -328,3 +441,18 @@ Row Number|Month    |
     211036|october  |
     209152|november |
      78173|december |
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
