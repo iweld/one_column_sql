@@ -419,18 +419,18 @@ ORDER BY
 
 Row Number|Month    |
 ----------|---------|
-    160354|january  |
-    110743|february |
-    179890|march    |
-     18069|april    |
-    177740|may      |
-    162341|june     |
-    162225|july     |
-     23405|august   |
-    285651|september|
-    211036|october  |
-    209152|november |
-     78173|december |
+160354|january  |
+110743|february |
+179890|march    |
+18069|april    |
+177740|may      |
+162341|june     |
+162225|july     |
+23405|august   |
+285651|september|
+211036|october  |
+209152|november |
+78173|december |
 
 
 
