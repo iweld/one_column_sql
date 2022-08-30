@@ -243,6 +243,71 @@ FROM
 7.0|          9.0|           13.0|
 
 
+### What is the word count for every letter in the words table? Sort by letter in ascending order.
+
+````sql
+SELECT
+	SUBSTRING(LOWER(WORD), 1, 1) AS LETTER,
+	COUNT(*)
+FROM
+	WORDS
+GROUP BY
+	LETTER
+ORDER BY
+	LETTER;
+````
+
+**Results:**
+letter|count|
+------|-----|
+a     |25416|
+b     |18413|
+c     |32107|
+d     |18733|
+e     |14197|
+f     |11893|
+g     |10953|
+h     |13743|
+i     |13199|
+j     | 2840|
+k     | 3952|
+l     |10002|
+m     |19805|
+n     |13458|
+o     |12681|
+p     |34860|
+q     | 1793|
+r     |16783|
+s     |38764|
+t     |18819|
+u     |22767|
+v     | 5329|
+w     | 6559|
+x     |  507|
+y     | 1143|
+z     | 1387|
+
+### What row number is the word 'shaker' in?
+
+````sql
+SELECT
+	ROW_NUM AS "Row Number",
+	WORD AS "Cool Last Name"
+FROM
+	(
+	SELECT
+		WORDS.*,
+			ROW_NUMBER() OVER() AS ROW_NUM
+	FROM
+		WORDS) AS ROW
+WHERE
+	WORD = 'shaker';
+````
+
+**Results:**
+Row Number|Cool Last Name|
+----------|--------------|
+    287206|shaker        |
 
 
 
