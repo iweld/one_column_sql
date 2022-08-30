@@ -11,14 +11,14 @@ DELIMITER ',';
 ```
 ### Test table by randomly grabbing an awesome word from the table
 
-```sql
+````sql
 SELECT
 	WORD AS great_word
 FROM
 	WORDS
 WHERE
 	WORD = 'shaker';
-```
+````
 
 **Results**
 
