@@ -238,6 +238,7 @@ FROM
 ````
 
 **Results:**
+
 25th_percentile|median_length|90th_percentile|
 ---------------|-------------|---------------|
 7.0|          9.0|           13.0|
@@ -258,6 +259,7 @@ ORDER BY
 ````
 
 **Results:**
+
 letter|count|
 ------|-----|
 a     |25416|
@@ -305,11 +307,130 @@ WHERE
 ````
 
 **Results:**
+
 Row Number|Cool Last Name|
 ----------|--------------|
-    287206|shaker        |
+287206|shaker        |
 
+### Find the count of all the palindromes (Excluding single and two letter words)
 
+````sql
+SELECT
+	COUNT(*) AS n_palindromes
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
+	AND LENGTH(WORD) >= 3;
+````
+
+**Results:**
+
+n_palindromes|
+-------------|
+193|
+
+### Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
+
+````sql
+SELECT
+	WORD AS s_palindromes
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
+	AND LENGTH(WORD) >= 3
+	AND word LIKE 'r%'
+ORDER BY
+	WORD
+LIMIT 10;
+````
+
+**Results:**
+
+r_palindromes|
+-------------|
+radar        |
+redder       |
+refer        |
+reifier      |
+renner       |
+repaper      |
+retter       |
+rever        |
+reviver      |
+rotator      |
+
+### Return the 15th palindrome (Excluding single and double letter words) of words that start with the letter 's'
+
+````sql
+SELECT
+	WORD AS "15th_s_palindrome"
+FROM
+	WORDS
+WHERE
+	WORD = REVERSE(WORD)
+	AND LENGTH(WORD) >= 3
+	AND word LIKE 's%'
+ORDER BY
+	WORD
+LIMIT 1 
+OFFSET 14;
+````
+
+**Results:**
+
+15th_s_palindrome|
+-----------------|
+sooloos          |
+
+### Find the row number for every month of the year and sort them in chronological order
+
+````sql
+SELECT
+	ROW_NUM AS "Row Number",
+	WORD AS "Month"
+FROM
+	(
+	SELECT
+		WORDS.*,
+			ROW_NUMBER() OVER() AS ROW_NUM
+	FROM
+		WORDS) AS ROW
+WHERE
+	WORD IN (
+	'january',
+	'february',
+	'march',
+	'april',
+	'may',
+	'june',
+	'july',
+	'august',
+	'september',
+	'october',
+	'november',
+	'december')
+ORDER BY
+	TO_DATE(WORD, 'Month');
+````
+
+**Results:**
+
+Row Number|Month    |
+----------|---------|
+    160354|january  |
+    110743|february |
+    179890|march    |
+     18069|april    |
+    177740|may      |
+    162341|june     |
+    162225|july     |
+     23405|august   |
+    285651|september|
+    211036|october  |
+    209152|november |
+     78173|december |
 
 
 
