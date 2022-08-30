@@ -190,8 +190,57 @@ WHERE
 **Results:**
 
 Longest Word                   |Word Length|
--------------------------------+-----------|
+-------------------------------|-----------|
 dichlorodiphenyltrichloroethane|         31|
+
+### What is the average length of a word?
+
+````sql
+SELECT
+	AVG(LENGTH(WORD)) avg_length
+FROM
+	WORDS;
+````
+
+**Results:**
+
+avg_length        |
+------------------|
+9.4424984396235643|
+
+### That returned a floating point value.  Can you round that number to zero decimal places?
+
+````sql
+SELECT
+	ROUND(AVG(LENGTH(WORD)))
+FROM
+	WORDS;
+````
+
+**Results:**
+
+rounded_length|
+--------------|
+9|
+
+### What is the 25th percentile, Median and 90th percentile length?
+
+````sql
+SELECT
+	PERCENTILE_CONT(0.25) WITHIN GROUP(
+	ORDER BY length(word)) AS "25th_percentile",
+	PERCENTILE_CONT(0.5) WITHIN GROUP(
+	ORDER BY length(word)) AS median_length,
+	PERCENTILE_CONT(0.9) WITHIN GROUP(
+	ORDER BY length(word)) AS "90th_percentile"
+FROM
+	words;
+````
+
+**Results:**
+25th_percentile|median_length|90th_percentile|
+---------------|-------------|---------------|
+7.0|          9.0|           13.0|
 
 
 
