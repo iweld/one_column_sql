@@ -20,7 +20,7 @@ WHERE
 	WORD = 'shaker';
 ````
 
-**Results**
+**Results:**
 
 great_word|
 ----------|
@@ -35,11 +35,28 @@ FROM
 	WORDS;
 ````
 
-**Results**
+**Results:**
 
 word_count|
 ----------|
 370103|
+
+### How many words start with the letter 'j'?
+
+````sql
+SELECT
+	COUNT(*) AS j_count
+FROM
+	WORDS
+WHERE
+	WORD LIKE 'j%';
+````
+
+**Results:**
+
+j_count|
+-------+
+   2840|
 
 
 
