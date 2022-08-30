@@ -2,12 +2,9 @@
 	Simple PostgreSQL exercises using one column of English words.
 */
 
--- Just like it says, drop the table if it exists
-
-DROP TABLE IF EXISTS WORDS;
 
 -- Create a one column table and use that column as the primary key
-
+DROP TABLE IF EXISTS WORDS;
 CREATE TABLE WORDS (
 	WORD VARCHAR(50),
 	PRIMARY KEY (WORD)
@@ -20,7 +17,7 @@ FROM
 '** Path to your **/csv/words.csv'
 DELIMITER ',';
 
--- Test table by randomly grabbing an awesome word from the record
+-- Test table by randomly grabbing an awesome word from the table
 
 SELECT
 	WORD AS great_word
@@ -35,10 +32,10 @@ great_word|
 ----------+
 shaker    |
 
--- How many words are in our dataset?
+-- How many words are in our table?
 
 SELECT
-	COUNT(*)
+	COUNT(*) AS word_count
 FROM
 	WORDS;
 
@@ -63,13 +60,14 @@ j_count|
 -------+
    2840|
    
--- How many words are x letters long?
+-- How many words are x letters long? (Excluding single letters)
    
 SELECT
 	char_length(word) AS word_length,
 	count(*) AS word_count
 FROM
 	words
+WHERE char_length(word) > 1
 GROUP BY
 	word_length
 ORDER BY
@@ -112,7 +110,7 @@ word_length|word_count|
 -- How many words contain 'jaime'?
 
 SELECT
-	COUNT(*)
+	COUNT(*) AS jaime_count
 FROM
 	WORDS
 WHERE
@@ -127,7 +125,7 @@ count|
 -- There's only one and only.  How many words contain 'shaker'?
 
 SELECT
-	COUNT(*)
+	COUNT(*) AS shaker_count
 FROM
 	WORDS
 WHERE
@@ -147,15 +145,6 @@ FROM
 	WORDS
 WHERE
 	WORD LIKE '%shaker%';
-
--- Speaking of 13.  How many words are 13 letters long?
-
-SELECT
-	COUNT(*)
-FROM
-	WORDS
-WHERE
-	LENGTH(WORD) = 13;
 
 -- Results:
 
@@ -196,7 +185,7 @@ Longest Word                   |Word Length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
--- What is the Average word length?
+-- What is the average length of a word?
 
 SELECT
 	AVG(LENGTH(WORD)) avg_length
@@ -209,36 +198,26 @@ avg_length        |
 ------------------+
 9.4424984396235643|
 
--- That returned a floating point value.  Can you round that number to two decimal places?
+-- That returned a floating point value.  Can you round that number to zero decimal places?
 
 SELECT
-	ROUND(AVG(LENGTH(WORD)), 2)
+	ROUND(AVG(LENGTH(WORD))) AS rounded_length
 FROM
 	WORDS;
 
 -- Results:
 
-round|
------+
- 9.44|
+rounded_length|
+--------------+
+             9|
 
--- What is the Median length?
+-- What is the 25th percentile, Median and 90th percentile length?
 
 SELECT
+	PERCENTILE_CONT(0.25) WITHIN GROUP(
+	ORDER BY length(word)) AS "25th_percentile",
 	PERCENTILE_CONT(0.5) WITHIN GROUP(
-	ORDER BY length(word)) AS median_length
-FROM
-	words;
-
--- Results:
-
-median_length|
--------------+
-          9.0|
-
--- What is the 90th percentile length?
-
-SELECT
+	ORDER BY length(word)) AS median_length,
 	PERCENTILE_CONT(0.9) WITHIN GROUP(
 	ORDER BY length(word)) AS "90th_percentile"
 FROM
@@ -246,23 +225,10 @@ FROM
 
 -- Results:
 
-90th_percentile|
----------------+
-           13.0|
+25th_percentile|median_length|90th_percentile|
+---------------+-------------+---------------+
+            7.0|          9.0|           13.0|
 
--- What is the 25th percentile length?
-
-SELECT
-	PERCENTILE_CONT(0.25) WITHIN GROUP(
-	ORDER BY length(word)) AS "25th_percentile"
-FROM
-	words;
-
--- Results:
-
-25th_percentile|
----------------+
-            7.0|
 
 -- What is the word count for every letter in the words table?
 -- Sort by letter.
@@ -345,39 +311,40 @@ n_palindromes|
 -------------+
           193|
 
--- Give me the first 10 of all the palindromes (Excluding single and two letter words)
+-- Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
 
 SELECT
-	WORD AS palindromes
+	WORD AS r_palindromes
 FROM
 	WORDS
 WHERE
 	WORD = REVERSE(WORD)
 	AND LENGTH(WORD) >= 3
+	AND word LIKE 'r%'
 ORDER BY
 	WORD
 LIMIT 10;
 
 -- Results:
 
-palindromes|
------------+
-aaa        |
-aba        |
-abba       |
-acca       |
-ada        |
-adda       |
-addda      |
-adinida    |
-affa       |
-aga        |
+r_palindromes|
+-------------+
+radar        |
+redder       |
+refer        |
+reifier      |
+renner       |
+repaper      |
+retter       |
+rever        |
+reviver      |
+rotator      |
 
 -- Give me the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
 SELECT
-	WORD AS palindrome
+	WORD AS "15th_s_palindrome"
 FROM
 	WORDS
 WHERE
