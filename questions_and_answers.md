@@ -78,7 +78,6 @@ ORDER BY
 
 word_length|word_count|
 -----------|----------|
-1|        26|
 2|       427|
 3|      2130|
 4|      7186|
@@ -107,6 +106,97 @@ word_length|word_count|
 28|         2|
 29|         2|
 31|         1|
+
+### How many words contain 'jaime'?
+
+````sql
+SELECT
+	COUNT(*) as jaime_count
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%jaime%';
+````
+
+**Results:**
+
+jaime_count|
+-----------|
+1|
+
+### How many words contain 'shaker'?
+
+````sql
+SELECT
+	COUNT(*) AS shaker_count
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
+````
+
+**Results:**
+
+shaker_count|
+------------|
+13|
+
+### What are those words?
+
+````sql
+SELECT
+	WORD
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
+````
+
+**Results:**
+
+word        |
+------------|
+boneshaker  |
+earthshaker |
+hallanshaker|
+handshaker  |
+headshaker  |
+saltshaker  |
+shaker      |
+shakerag    |
+shakerdom   |
+shakeress   |
+shakerism   |
+shakerlike  |
+shakers     |
+
+### What is the longest word in this table and how many characters does it contain?
+
+````sql
+SELECT 
+	WORD AS "Longest Word", 
+	length(word) AS "Word Length"
+FROM
+	WORDS
+WHERE
+	LENGTH(WORD) =
+		(
+	SELECT
+		MAX(LENGTH(WORD))
+	FROM
+		WORDS);
+````
+
+**Results:**
+
+Longest Word                   |Word Length|
+-------------------------------+-----------|
+dichlorodiphenyltrichloroethane|         31|
+
+
+
+
+
 
 
 
