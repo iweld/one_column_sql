@@ -230,49 +230,57 @@ FROM
             7.0|          9.0|           13.0|
 
 
--- What is the word count for every letter in the words table?
+-- What is the word count for every letter in the words table and what is the percentage of the total?
 -- Sort by letter.
 
-SELECT
-	SUBSTRING(LOWER(WORD), 1, 1) AS LETTER,
-	COUNT(*)
-FROM
-	WORDS
-GROUP BY
-	LETTER
+SELECT 
+	letter,
+	word_count,
+	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
+from
+	(SELECT
+		SUBSTRING(LOWER(word), 1, 1) AS letter,
+		COUNT(*) AS word_count
+	FROM
+		words
+	GROUP BY
+		letter) AS tmp
+GROUP BY 
+	letter,
+	word_count
 ORDER BY
-	LETTER;
+	letter;
 
 -- Results:
 
-letter|count|
-------+-----+
-a     |25416|
-b     |18413|
-c     |32107|
-d     |18733|
-e     |14197|
-f     |11893|
-g     |10953|
-h     |13743|
-i     |13199|
-j     | 2840|
-k     | 3952|
-l     |10002|
-m     |19805|
-n     |13458|
-o     |12681|
-p     |34860|
-q     | 1793|
-r     |16783|
-s     |38764|
-t     |18819|
-u     |22767|
-v     | 5329|
-w     | 6559|
-x     |  507|
-y     | 1143|
-z     | 1387|
+letter|word_count|total_percentage|
+------+----------+----------------+
+a     |     25416|            6.87|
+b     |     18413|            4.98|
+c     |     32107|            8.68|
+d     |     18733|            5.06|
+e     |     14197|            3.84|
+f     |     11893|            3.21|
+g     |     10953|            2.96|
+h     |     13743|            3.71|
+i     |     13199|            3.57|
+j     |      2840|            0.77|
+k     |      3952|            1.07|
+l     |     10002|            2.70|
+m     |     19805|            5.35|
+n     |     13458|            3.64|
+o     |     12681|            3.43|
+p     |     34860|            9.42|
+q     |      1793|            0.48|
+r     |     16783|            4.53|
+s     |     38764|           10.47|
+t     |     18819|            5.08|
+u     |     22767|            6.15|
+v     |      5329|            1.44|
+w     |      6559|            1.77|
+x     |       507|            0.14|
+y     |      1143|            0.31|
+z     |      1387|            0.37|
 
 -- What row number is the word 'shaker' in?  
 
@@ -358,9 +366,9 @@ OFFSET 14;
 
 -- Results:
 
-word   |
--------+
-sooloos|
+15th_s_palindrome|
+-----------------+
+sooloos          |
 
 -- Find the row number for every month of the year and
 -- sort them in chronological order
@@ -409,11 +417,6 @@ Row Number|Month    |
     209152|november |
      78173|december |
 
-	
-	
-	
-	
-	
 	
 	
 	
