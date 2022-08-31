@@ -244,18 +244,26 @@ FROM
 7.0|          9.0|           13.0|
 
 
-### What is the word count for every letter in the words table? Sort by letter in ascending order.
+### What is the word count for every letter in the words table  and what is the percentage of the total? Sort by letter in ascending order.
 
 ````sql
-SELECT
-	SUBSTRING(LOWER(WORD), 1, 1) AS LETTER,
-	COUNT(*)
-FROM
-	WORDS
-GROUP BY
-	LETTER
+SELECT 
+	letter,
+	word_count,
+	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
+from
+	(SELECT
+		SUBSTRING(LOWER(word), 1, 1) AS letter,
+		COUNT(*) AS word_count
+	FROM
+		words
+	GROUP BY
+		letter) AS tmp
+GROUP BY 
+	letter,
+	word_count
 ORDER BY
-	LETTER;
+	letter;
 ````
 
 **Results:**
