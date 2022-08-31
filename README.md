@@ -3,6 +3,8 @@
 ## Introduction
 A simple project of using SQL practices with one column of english words.
 
+Check out [My Questions and Answers](https://github.com/iweld/one_column_sql/blob/main/questions_and_answers.md "My Questions and Answers").
+
 ## Problem Statement
 
 
