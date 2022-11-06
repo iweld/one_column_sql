@@ -71,13 +71,12 @@ WHERE char_length(word) > 1
 GROUP BY
 	word_length
 ORDER BY
-	word_length
+	word_length;
 
 -- Results:
 
 word_length|word_count|
 -----------+----------+
-          1|        26|
           2|       427|
           3|      2130|
           4|      7186|
@@ -416,6 +415,36 @@ Row Number|Month    |
     211036|october  |
     209152|november |
      78173|december |
+     
+-- String Functions
+     
+-- Convert words that contain 'shaker' to uppecase and concatate their length (#)
+     
+SELECT
+	upper(WORD) || ' (' || length(word) || ')' AS upper_case
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
+	
+-- Results:
+
+upper_case       |
+-----------------+
+BONESHAKER (10)  |
+EARTHSHAKER (11) |
+HALLANSHAKER (12)|
+HANDSHAKER (10)  |
+HEADSHAKER (10)  |
+SALTSHAKER (10)  |
+SHAKER (6)       |
+SHAKERAG (8)     |
+SHAKERDOM (9)    |
+SHAKERESS (9)    |
+SHAKERISM (9)    |
+SHAKERLIKE (10)  |
+SHAKERS (7)      |
+
 
 	
 	
