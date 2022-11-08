@@ -418,7 +418,7 @@ Row Number|Month    |
      
 -- String Functions
      
--- Convert words that contain 'shaker' to uppecase and concatate their length (#)
+-- Convert words that contain 'shaker' to uppercase and concatnate their length (#)
      
 SELECT
 	upper(WORD) || ' (' || length(word) || ')' AS upper_case

@@ -1,6 +1,6 @@
 # One Column SQL
 ## Questions and Answers
-### by jaime.m.shaker@gmail.com
+#### by jaime.m.shaker@gmail.com
 
 ## A. Create a one column table and use that column as the primary key
 ````sql
@@ -9,7 +9,7 @@ FROM
 '** Path to your **/csv/words.csv'
 DELIMITER ',';
 ````
-### Test table by randomly grabbing an awesome word from the table
+#### Test table by randomly grabbing an awesome word from the table
 
 ````sql
 SELECT
@@ -26,7 +26,7 @@ great_word|
 ----------|
 shaker    |
 
-### How many words are in our table?
+#### How many words are in our table?
 
 ````sql
 SELECT
@@ -41,7 +41,7 @@ word_count|
 ----------|
 370103|
 
-### How many words start with the letter 'j'?
+#### How many words start with the letter 'j'?
 
 ````sql
 SELECT
@@ -59,7 +59,7 @@ j_count|
 2840|
 
 
-### How many words are x letters long?
+#### How many words are x letters long?
 
 ````sql
 SELECT
@@ -107,7 +107,7 @@ word_length|word_count|
 29|         2|
 31|         1|
 
-### How many words contain 'jaime'?
+#### How many words contain 'jaime'?
 
 ````sql
 SELECT
@@ -124,7 +124,7 @@ jaime_count|
 -----------|
 1|
 
-### How many words contain 'shaker'?
+#### How many words contain 'shaker'?
 
 ````sql
 SELECT
@@ -141,7 +141,7 @@ shaker_count|
 ------------|
 13|
 
-### What are those words?
+#### What are those words?
 
 ````sql
 SELECT
@@ -170,7 +170,7 @@ shakerism   |
 shakerlike  |
 shakers     |
 
-### What is the longest word in this table and how many characters does it contain?
+#### What is the longest word in this table and how many characters does it contain?
 
 ````sql
 SELECT 
@@ -193,7 +193,7 @@ Longest Word                   |Word Length|
 -------------------------------|-----------|
 dichlorodiphenyltrichloroethane|         31|
 
-### What is the average length of a word?
+#### What is the average length of a word?
 
 ````sql
 SELECT
@@ -208,7 +208,7 @@ avg_length        |
 ------------------|
 9.4424984396235643|
 
-### That returned a floating point value.  Can you round that number to zero decimal places?
+#### That returned a floating point value.  Can you round that number to zero decimal places?
 
 ````sql
 SELECT
@@ -223,7 +223,7 @@ rounded_length|
 --------------|
 9|
 
-### What is the 25th percentile, Median and 90th percentile length?
+#### What is the 25th percentile, Median and 90th percentile length?
 
 ````sql
 SELECT
@@ -244,7 +244,7 @@ FROM
 7.0|          9.0|           13.0|
 
 
-### What is the word count for every letter in the words table  and what is the percentage of the total? Sort by letter in ascending order.
+#### What is the word count for every letter in the words table  and what is the percentage of the total? Sort by letter in ascending order.
 
 ````sql
 SELECT 
@@ -297,7 +297,7 @@ x     |       507|            0.14|
 y     |      1143|            0.31|
 z     |      1387|            0.37|
 
-### What row number is the word 'shaker' in?
+#### What row number is the word 'shaker' in?
 
 ````sql
 SELECT
@@ -320,7 +320,7 @@ Row Number|Cool Last Name|
 ----------|--------------|
 287206|shaker        |
 
-### Find the count of all the palindromes (Excluding single and two letter words)
+#### Find the count of all the palindromes (Excluding single and two letter words)
 
 ````sql
 SELECT
@@ -338,7 +338,7 @@ n_palindromes|
 -------------|
 193|
 
-### Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
+#### Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
 
 ````sql
 SELECT
@@ -369,7 +369,7 @@ rever        |
 reviver      |
 rotator      |
 
-### Return the 15th palindrome (Excluding single and double letter words) of words that start with the letter 's'
+#### Return the 15th palindrome (Excluding single and double letter words) of words that start with the letter 's'
 
 ````sql
 SELECT
@@ -392,7 +392,7 @@ OFFSET 14;
 -----------------|
 sooloos          |
 
-### Find the row number for every month of the year and sort them in chronological order
+#### Find the row number for every month of the year and sort them in chronological order
 
 ````sql
 SELECT
@@ -440,7 +440,34 @@ Row Number|Month    |
 209152|november |
 78173|december |
 
+#### Convert words that contain 'shaker' to uppercase and concatnate their length (#)
 
+````sql
+SELECT
+	upper(WORD) || ' (' || length(word) || ')' AS upper_case
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
+````
+
+**Results:**
+
+upper_case       |
+-----------------|
+BONESHAKER (10)  |
+EARTHSHAKER (11) |
+HALLANSHAKER (12)|
+HANDSHAKER (10)  |
+HEADSHAKER (10)  |
+SALTSHAKER (10)  |
+SHAKER (6)       |
+SHAKERAG (8)     |
+SHAKERDOM (9)    |
+SHAKERESS (9)    |
+SHAKERISM (9)    |
+SHAKERLIKE (10)  |
+SHAKERS (7)      |
 
 
 
