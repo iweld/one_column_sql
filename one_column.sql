@@ -20,7 +20,7 @@ DELIMITER ',';
 -- Test table by randomly grabbing an awesome word from the table
 
 SELECT
-	WORD AS great_word
+	WORD AS awesome_word
 FROM
 	WORDS
 WHERE
@@ -28,9 +28,9 @@ WHERE
 
 -- Results:
 
-great_word|
-----------+
-shaker    |
+awesome_word|
+------------+
+shaker      |
 
 -- How many words are in our table?
 
@@ -105,6 +105,7 @@ word_length|word_count|
          28|         2|
          29|         2|
          31|         1|
+         
 
 -- How many words contain 'jaime'?
 

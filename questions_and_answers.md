@@ -22,9 +22,9 @@ WHERE
 
 **Results:**
 
-great_word|
-----------|
-shaker    |
+awesome_word|
+------------|
+shaker      |
 
 #### How many words are in our table?
 
