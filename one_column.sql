@@ -210,7 +210,7 @@ shaken            |shakespearean   |
 
 
 -- What is the longest word in this table and how many characters does it contain?
--- Use the RANK() function
+-- Use the DENSE_RANK() function
 
 WITH get_word_length_rank AS (
 	SELECT 
@@ -233,6 +233,36 @@ WHERE
 Longest Word                   |Word Length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
+
+-- What are the top 3 longest words in this table and how many characters do they contain?
+-- Use DENSE_RANK() function and include ties.
+
+WITH get_word_length_rank AS (
+	SELECT 
+		WORD AS each_word, 
+		length(word) AS w_length,
+		DENSE_RANK() OVER (ORDER BY length(word) DESC) AS rnk
+	FROM
+		WORDS
+)
+SELECT
+	rnk AS rank_number,
+	each_word AS top_three_longest_words,
+	w_length AS word_length
+FROM 
+	get_word_length_rank
+WHERE 
+	rnk <= 3;
+		
+-- Results:
+		
+rank_number|top_three_longest_words        |word_length|
+-----------+-------------------------------+-----------+
+          1|dichlorodiphenyltrichloroethane|         31|
+          2|cyclotrimethylenetrinitramine  |         29|
+          2|trinitrophenylmethylnitramine  |         29|
+          3|antidisestablishmentarianism   |         28|
+          3|hydroxydehydrocorticosterone   |         28|
 
 -- What is the average length of a word?
 
