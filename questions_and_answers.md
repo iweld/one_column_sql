@@ -388,16 +388,18 @@ z     |      1387|            0.37|
 #### What row number is the word 'shaker' in?
 
 ````sql
+WITH get_word_row_number AS (
+	SELECT
+		WORDS.*,
+		ROW_NUMBER() OVER() AS ROW_NUM
+	FROM
+		WORDS
+)
 SELECT
 	ROW_NUM AS "Row Number",
 	WORD AS "Cool Last Name"
 FROM
-	(
-	SELECT
-		WORDS.*,
-			ROW_NUMBER() OVER() AS ROW_NUM
-	FROM
-		WORDS) AS ROW
+	get_word_row_number
 WHERE
 	WORD = 'shaker';
 ````
