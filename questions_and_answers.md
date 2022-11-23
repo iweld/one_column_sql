@@ -510,16 +510,18 @@ sooloos          |
 #### Find the row number for every month of the year and sort them in chronological order
 
 ````sql
+WITH get_month_row_number AS (
+	SELECT
+		WORDS.*,
+		ROW_NUMBER() OVER() AS ROW_NUM
+	FROM
+		WORDS
+)
 SELECT
 	ROW_NUM AS "Row Number",
 	WORD AS "Month"
 FROM
-	(
-	SELECT
-		WORDS.*,
-			ROW_NUMBER() OVER() AS ROW_NUM
-	FROM
-		WORDS) AS ROW
+	get_month_row_number
 WHERE
 	WORD IN (
 	'january',
