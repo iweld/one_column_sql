@@ -170,6 +170,35 @@ shakerism   |
 shakerlike  |
 shakers     |
 
+#### Convert words that contain 'shaker' to uppercase and concatnate their length (#)
+
+````sql
+SELECT
+	upper(WORD) || ' (' || length(word) || ')' AS upper_case
+FROM
+	WORDS
+WHERE
+	WORD LIKE '%shaker%';
+````
+
+**Results:**
+
+upper_case       |
+-----------------|
+BONESHAKER (10)  |
+EARTHSHAKER (11) |
+HALLANSHAKER (12)|
+HANDSHAKER (10)  |
+HEADSHAKER (10)  |
+SALTSHAKER (10)  |
+SHAKER (6)       |
+SHAKERAG (8)     |
+SHAKERDOM (9)    |
+SHAKERESS (9)    |
+SHAKERISM (9)    |
+SHAKERLIKE (10)  |
+SHAKERS (7)      |
+
 #### What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
 
 ````sql
@@ -557,34 +586,7 @@ Row Number|Month    |
 209152|november |
 78173|december |
 
-#### Convert words that contain 'shaker' to uppercase and concatnate their length (#)
 
-````sql
-SELECT
-	upper(WORD) || ' (' || length(word) || ')' AS upper_case
-FROM
-	WORDS
-WHERE
-	WORD LIKE '%shaker%';
-````
-
-**Results:**
-
-upper_case       |
------------------|
-BONESHAKER (10)  |
-EARTHSHAKER (11) |
-HALLANSHAKER (12)|
-HANDSHAKER (10)  |
-HEADSHAKER (10)  |
-SALTSHAKER (10)  |
-SHAKER (6)       |
-SHAKERAG (8)     |
-SHAKERDOM (9)    |
-SHAKERESS (9)    |
-SHAKERISM (9)    |
-SHAKERLIKE (10)  |
-SHAKERS (7)      |
 
 
 
