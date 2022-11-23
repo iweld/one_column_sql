@@ -195,20 +195,24 @@ before_shaker|after_shaker|
 shakeproof   |shakerag    |
 
 #### What is the longest word in this table and how many characters does it contain?
+##### Use DENSE_RANK() function.
 
 ````sql
-SELECT 
-	WORD AS "Longest Word", 
-	length(word) AS "Word Length"
-FROM
-	WORDS
-WHERE
-	LENGTH(WORD) =
-		(
-	SELECT
-		MAX(LENGTH(WORD))
+WITH get_word_length_rank AS (
+	SELECT 
+		WORD AS each_word, 
+		length(word) AS w_length,
+		DENSE_RANK() OVER (ORDER BY length(word) DESC) AS rnk
 	FROM
-		WORDS);
+		WORDS
+)
+SELECT
+	each_word AS longest_word,
+	w_length AS word_length
+FROM 
+	get_word_length_rank
+WHERE 
+	rnk = 1;
 ````
 
 **Results:**
@@ -216,6 +220,7 @@ WHERE
 Longest Word                   |Word Length|
 -------------------------------|-----------|
 dichlorodiphenyltrichloroethane|         31|
+
 
 #### What is the average length of a word?
 

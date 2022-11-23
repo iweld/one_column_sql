@@ -186,21 +186,47 @@ before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
+-- What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
+
+WITH get_lag_lead AS (
+	SELECT
+		word,
+		LAG(word, 5) OVER () AS prev_word,
+		LEAD(word, 10) OVER () AS next_word
+	FROM words
+)
+SELECT
+	prev_word AS five_before_shaker,
+	next_word AS ten_after_shaker
+from
+	get_lag_lead
+WHERE word = 'shaker';
+
+-- Results:
+
+five_before_shaker|ten_after_shaker|
+------------------+----------------+
+shaken            |shakespearean   |
+
 
 -- What is the longest word in this table and how many characters does it contain?
+-- Use the RANK() function
 
-SELECT 
-	WORD AS "Longest Word", 
-	length(word) AS "Word Length"
-FROM
-	WORDS
-WHERE
-	LENGTH(WORD) =
-		(
-	SELECT
-		MAX(LENGTH(WORD))
+WITH get_word_length_rank AS (
+	SELECT 
+		WORD AS each_word, 
+		length(word) AS w_length,
+		DENSE_RANK() OVER (ORDER BY length(word) DESC) AS rnk
 	FROM
-		WORDS);
+		WORDS
+)
+SELECT
+	each_word AS longest_word,
+	w_length AS word_length
+FROM 
+	get_word_length_rank
+WHERE 
+	rnk = 1;
 		
 -- Results:
 		
