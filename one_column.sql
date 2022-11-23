@@ -551,6 +551,37 @@ Row Number|Month    |
     209152|november |
      78173|december |
      
+-- Create a function that returns the number of words between a low and high letter count.
+ 
+DROP FUNCTION get_word_count;     
+
+CREATE FUNCTION get_word_count(l_from int, l_to int)
+RETURNS int
+LANGUAGE plpgsql
+AS
+$$
+	DECLARE
+		word_count int;
+	BEGIN
+		SELECT
+			count(*)
+		INTO word_count
+		FROM words
+		WHERE length(word) BETWEEN l_from AND l_to;
+	
+	RETURN word_count;
+	END;
+$$;
+
+
+SELECT get_word_count(4, 7);
+
+-- Results:
+
+get_word_count|
+--------------+
+         94976|
+     
 
 
 
