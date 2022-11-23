@@ -297,7 +297,7 @@ avg_length        |
 
 ````sql
 SELECT
-	ROUND(AVG(LENGTH(WORD)))
+	ROUND(AVG(LENGTH(WORD)), 2) as rounded_length
 FROM
 	WORDS;
 ````
@@ -306,7 +306,7 @@ FROM
 
 rounded_length|
 --------------|
-9|
+9.44|
 
 #### What is the 25th percentile, Median and 90th percentile length?
 
@@ -332,18 +332,21 @@ FROM
 #### What is the word count for every letter in the words table  and what is the percentage of the total? Sort by letter in ascending order.
 
 ````sql
-SELECT 
-	letter,
-	word_count,
-	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
-from
-	(SELECT
+WITH get_letter_count AS (
+	SELECT
 		SUBSTRING(LOWER(word), 1, 1) AS letter,
 		COUNT(*) AS word_count
 	FROM
 		words
 	GROUP BY
-		letter) AS tmp
+		letter
+)
+SELECT 
+	letter,
+	word_count,
+	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
+from
+	get_letter_count
 GROUP BY 
 	letter,
 	word_count

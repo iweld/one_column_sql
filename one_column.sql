@@ -277,10 +277,10 @@ avg_length        |
 ------------------+
 9.4424984396235643|
 
--- That returned a floating point value.  Can you round that number to zero decimal places?
+-- That returned a floating point value.  Can you round that number to 2 decimal places?
 
 SELECT
-	ROUND(AVG(LENGTH(WORD))) AS rounded_length
+	ROUND(AVG(LENGTH(WORD)), 2) AS rounded_length
 FROM
 	WORDS;
 
@@ -288,7 +288,7 @@ FROM
 
 rounded_length|
 --------------+
-             9|
+          9.44|
 
 -- What is the 25th percentile, Median and 90th percentile length?
 
@@ -312,18 +312,21 @@ FROM
 -- What is the word count for every letter in the words table and what is the percentage of the total?
 -- Sort by letter.
 
-SELECT 
-	letter,
-	word_count,
-	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
-from
-	(SELECT
+WITH get_letter_count AS (
+	SELECT
 		SUBSTRING(LOWER(word), 1, 1) AS letter,
 		COUNT(*) AS word_count
 	FROM
 		words
 	GROUP BY
-		letter) AS tmp
+		letter
+)
+SELECT 
+	letter,
+	word_count,
+	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
+from
+	get_letter_count
 GROUP BY 
 	letter,
 	word_count
@@ -370,7 +373,7 @@ FROM
 	(
 	SELECT
 		WORDS.*,
-			ROW_NUMBER() OVER() AS ROW_NUM
+		ROW_NUMBER() OVER() AS ROW_NUM
 	FROM
 		WORDS) AS ROW
 WHERE
