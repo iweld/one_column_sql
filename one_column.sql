@@ -448,6 +448,27 @@ ORDER BY
 LIMIT 1 
 OFFSET 14;
 
+-- Or use the ROW_NUMBER() window function.
+
+WITH get_nth_palindrome as (
+	SELECT
+		WORD,
+		ROW_NUMBER() OVER () AS rn
+	FROM
+		WORDS
+	WHERE
+		WORD = REVERSE(WORD)
+		AND LENGTH(WORD) >= 3
+		AND word LIKE 's%'
+	ORDER BY
+		WORD
+)
+SELECT
+	word AS "15th_s_palindrome"
+FROM
+	get_nth_palindrome
+WHERE rn = 15;
+
 -- Results:
 
 15th_s_palindrome|
