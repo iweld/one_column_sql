@@ -164,6 +164,29 @@ shakerism   |
 shakerlike  |
 shakers     |
 
+-- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
+
+WITH get_lag_lead AS (
+	SELECT
+		word,
+		LAG(word) OVER () AS prev_word,
+		LEAD(word) OVER () AS next_word
+	FROM words
+)
+SELECT
+	prev_word AS before_shaker,
+	next_word AS after_shaker
+from
+	get_lag_lead
+WHERE word = 'shaker';
+
+-- Results:
+
+before_shaker|after_shaker|
+-------------+------------+
+shakeproof   |shakerag    |
+
+
 -- What is the longest word in this table and how many characters does it contain?
 
 SELECT 
