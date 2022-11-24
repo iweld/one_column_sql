@@ -502,6 +502,34 @@ WHERE rn = 15;
 -----------------+
 sooloos          |
 
+-- Create a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter s.
+
+SELECT
+	word,
+	reverse(word) AS anadrome
+FROM
+	words
+WHERE reverse(word) IN (SELECT word FROM words)
+AND word <> reverse(word)
+AND length(word) >= 4
+AND word LIKE 's%'
+LIMIT 10;
+
+-- Results:
+
+word  |reverse|
+------+-------+
+saba  |abas   |
+sabana|anabas |
+saco  |ocas   |
+sacro |orcas  |
+safen |nefas  |
+saga  |agas   |
+sagra |argas  |
+said  |dias   |
+sail  |lias   |
+saim  |mias   |
+
 -- Find the row number for every month of the year and
 -- sort them in chronological order
 
@@ -581,12 +609,12 @@ SELECT get_word_count(4, 7);
 get_word_count|
 --------------+
          94976|
-     
+
 
 
 
 	
-	
+
 	
 	
 	
