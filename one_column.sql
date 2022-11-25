@@ -632,7 +632,7 @@ $$
 	END;
 $$;
 
--- Create a temp table
+-- Create a temp table for word metrics.
 
 DROP TABLE IF EXISTS word_metrics;
 CREATE TEMP TABLE word_metrics AS (
