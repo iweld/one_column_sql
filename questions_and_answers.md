@@ -660,9 +660,8 @@ $$
 		vowel_count int;
 	BEGIN
 		SELECT
-			length(current_word) - length(
-								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
-								)
+			length(current_word) - 
+				length(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', ''))
 			INTO vowel_count;
 		RETURN vowel_count;
 	END;
