@@ -611,7 +611,7 @@ get_word_count|
          94976|
 
 
--- Create a function that counts the number of vowels in a word for words greater to or equal to 3 letters long.
+-- Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
          
 DROP FUNCTION count_the_vowels;
 
@@ -632,15 +632,41 @@ $$
 	END;
 $$;
 
+-- Create a temp table
+
+DROP TABLE IF EXISTS word_metrics;
+CREATE TEMP TABLE word_metrics AS (
+	SELECT 
+		word,
+		length(word) AS letter_count,
+		count_the_vowels(word) AS vowel_count,
+		length(word) - count_the_vowels(word) AS difference,
+		round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS vowel_percentage,
+		100 - round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS consonant_percentage
+	FROM
+		words
+	WHERE length(word) >= 3
+);
+
 SELECT 
-	word,
-	length(word) AS letter_count,
-	count_the_vowels(word) AS vowel_count,
-	length(word) - count_the_vowels(word) AS difference,
-	round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS vowel_percentage
-FROM
-	words
-WHERE length(word) >= 3
+	* 
+FROM word_metrics
+LIMIT 10;
+
+-- Results:
+
+word  |letter_count|vowel_count|difference|vowel_percentage|consonant_percentage|
+------+------------+-----------+----------+----------------+--------------------+
+aaa   |           3|          3|         0|          100.00|                0.00|
+aah   |           3|          2|         1|           66.67|               33.33|
+aahed |           5|          3|         2|           60.00|               40.00|
+aahing|           6|          3|         3|           50.00|               50.00|
+aahs  |           4|          2|         2|           50.00|               50.00|
+aal   |           3|          2|         1|           66.67|               33.33|
+aalii |           5|          4|         1|           80.00|               20.00|
+aaliis|           6|          4|         2|           66.67|               33.33|
+aals  |           4|          2|         2|           50.00|               50.00|
+aam   |           3|          2|         1|           66.67|               33.33|
 
 
 
