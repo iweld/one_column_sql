@@ -635,7 +635,9 @@ $$;
 SELECT 
 	word,
 	length(word) AS letter_count,
-	count_the_vowels(word) AS vowel_count
+	count_the_vowels(word) AS vowel_count,
+	length(word) - count_the_vowels(word) AS difference,
+	round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS vowel_percentage
 FROM
 	words
 WHERE length(word) >= 3
