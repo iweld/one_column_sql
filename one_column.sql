@@ -611,6 +611,45 @@ get_word_count|
          94976|
 
 
+-- Create a function that counts the number of vowels in a word for words greater to or equal to 3 letters long.
+         
+DROP FUNCTION count_the_vowels;
+
+CREATE FUNCTION count_the_vowels(current_word text)
+RETURNS int
+LANGUAGE plpgsql
+AS
+$$
+	DECLARE 
+		vowel_count int;
+	BEGIN
+		SELECT
+			length(current_word) - length(
+								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
+								)
+			INTO vowel_count;
+		RETURN vowel_count;
+	END;
+$$;
+
+SELECT 
+	word,
+	length(word) AS letter_count,
+	count_the_vowels(word) AS vowel_count
+FROM
+	words
+WHERE length(word) >= 3
+
+
+
+
+
+
+
+
+
+
+
 
 
 	
