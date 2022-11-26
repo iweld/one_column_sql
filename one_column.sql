@@ -624,6 +624,7 @@ $$
 		vowel_count int;
 	BEGIN
 		SELECT
+			-- Replace vowels with '' then subtract the length of the word with the removed vowels word length.
 			length(current_word) - length(
 								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
 								)
@@ -669,8 +670,104 @@ aals  |           4|          2|         2|           50.00|               50.00
 aam   |           3|          2|         1|           66.67|               33.33|
 
 
+-- Find the anagrams in this table
 
+DROP FUNCTION sort_word;
 
+CREATE FUNCTION sort_word (my_word text)
+RETURNS TEXT
+LANGUAGE plpgsql
+AS
+$$
+	DECLARE sorted_word TEXT;
+	BEGIN
+		SELECT string_agg(tmp.split_word, '') AS sorted_str
+		FROM
+			(SELECT UNNEST(regexp_split_to_array(my_word, '')) AS split_word ORDER BY split_word) AS tmp
+		INTO sorted_word;
+	RETURN sorted_word;
+	END;
+$$;
+
+DROP TABLE IF EXISTS dummy;
+
+CREATE TABLE dummy (
+	id serial,
+	word text
+);
+
+INSERT INTO dummy (word)
+VALUES
+	('dude'),
+	('lust'),
+	('slut'),
+	('joke'),
+	('keep'),
+	('peek'),
+	('diet'),
+	('tied'),
+	('edit'),
+	('coats'),
+	('hater'),
+	('coast'),
+	('tacos'),
+	('traps'),
+	('parts'),
+	('strap'),
+	('with'),
+	('school'),
+	('loser'),
+	('roles');
+
+WITH add_row_num AS (
+	SELECT
+		ROW_NUMBER() OVER () AS id,
+		word
+	FROM
+		dummy
+),
+get_anagram AS (
+	SELECT 
+		d1.word AS word,
+		CASE
+			WHEN length(d1.word) = length(d2.word) THEN
+				case
+					WHEN sort_word(d1.word) = sort_word(d2.word) THEN d2.word
+					ELSE NULL
+				END
+		END AS anagram
+	FROM add_row_num AS d1
+	JOIN add_row_num AS d2
+	ON d1.id <> d2.id
+)
+SELECT
+	word,
+	string_agg(anagram, ', ') AS anagrams
+FROM
+	get_anagram
+WHERE anagram IS NOT null
+GROUP BY word
+ORDER BY word;
+	
+-- Results:
+
+word |anagrams    |
+-----+------------+
+coast|coats, tacos|
+coats|coast, tacos|
+diet |tied, edit  |
+edit |diet, tied  |
+keep |peek        |
+loser|roles       |
+lust |slut        |
+parts|traps, strap|
+peek |keep        |
+roles|loser       |
+slut |lust        |
+strap|traps, parts|
+tacos|coats, coast|
+tied |diet, edit  |
+traps|parts, strap|
 
 
 
