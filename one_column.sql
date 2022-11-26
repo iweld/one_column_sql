@@ -17,7 +17,7 @@ FROM
 '** Path to your **/csv/words.csv'
 DELIMITER ',';
 
--- Test table by randomly grabbing an awesome word from the table
+-- 1. Test table by randomly grabbing an awesome word from the table
 
 SELECT
 	WORD AS awesome_word
@@ -32,7 +32,7 @@ awesome_word|
 ------------+
 shaker      |
 
--- How many words are in our table?
+-- 2. How many words are in our table?
 
 SELECT
 	COUNT(*) AS word_count
@@ -45,7 +45,7 @@ count |
 ------+
 370103|
 
--- How many words start with the letter 'j'?
+-- 3. How many words start with the letter 'j'?
 
 SELECT
 	COUNT(*) AS j_count
@@ -60,7 +60,7 @@ j_count|
 -------+
    2840|
    
--- How many words are x letters long? (Excluding single letters)
+-- 4. How many words are x letters long? (Excluding single letters)
    
 SELECT
 	char_length(word) AS word_length,
@@ -107,7 +107,7 @@ word_length|word_count|
          31|         1|
          
 
--- How many words contain 'jaime'?
+-- 5. How many words contain 'jaime'?
 
 SELECT
 	COUNT(*) AS jaime_count
@@ -122,7 +122,7 @@ count|
 -----+
     1|
 
--- There's only one and only.  How many words contain 'shaker'?
+-- 6. There's only one and only.  How many words contain 'shaker'?
 
 SELECT
 	COUNT(*) AS shaker_count
@@ -137,7 +137,7 @@ count|
 -----+
    13|
 
--- 13? Must be a lucky word.  What are those words?
+-- 7. 13? Must be a lucky word.  What are those words?
 
 SELECT
 	WORD
@@ -164,7 +164,7 @@ shakerism   |
 shakerlike  |
 shakers     |
 
--- Convert words that contain 'shaker' to uppercase and concatnate their length (#)
+-- 8. Convert words that contain 'shaker' to uppercase and concatnate their length (#)
      
 SELECT
 	upper(WORD) || ' (' || length(word) || ')' AS upper_case
@@ -191,7 +191,7 @@ SHAKERISM (9)    |
 SHAKERLIKE (10)  |
 SHAKERS (7)      |
 
--- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
+-- 9. What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
 
 WITH get_lag_lead AS (
 	SELECT
@@ -213,7 +213,7 @@ before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
--- What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
+-- 10. What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
 
 WITH get_lag_lead AS (
 	SELECT
@@ -236,7 +236,7 @@ five_before_shaker|ten_after_shaker|
 shaken            |shakespearean   |
 
 
--- What is the longest word in this table and how many characters does it contain?
+-- 11. What is the longest word in this table and how many characters does it contain?
 -- Use the DENSE_RANK() function
 
 WITH get_word_length_rank AS (
@@ -261,7 +261,7 @@ Longest Word                   |Word Length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
--- What are the top 3 longest words in this table and how many characters do they contain?
+-- 12. What are the top 3 longest words in this table and how many characters do they contain?
 -- Use DENSE_RANK() function and include ties.
 
 WITH get_word_length_rank AS (
@@ -291,7 +291,7 @@ rank_number|top_three_longest_words        |word_length|
           3|antidisestablishmentarianism   |         28|
           3|hydroxydehydrocorticosterone   |         28|
 
--- What is the average length of a word?
+-- 13a. What is the average length of a word?
 
 SELECT
 	AVG(LENGTH(WORD)) avg_length
@@ -304,7 +304,7 @@ avg_length        |
 ------------------+
 9.4424984396235643|
 
--- That returned a floating point value.  Can you round that number to 2 decimal places?
+-- 13b. That returned a floating point value.  Can you round that number to 2 decimal places?
 
 SELECT
 	ROUND(AVG(LENGTH(WORD)), 2) AS rounded_length
@@ -317,7 +317,7 @@ rounded_length|
 --------------+
           9.44|
 
--- What is the 25th percentile, Median and 90th percentile length?
+-- 14. What is the 25th percentile, Median and 90th percentile length?
 
 SELECT
 	PERCENTILE_CONT(0.25) WITHIN GROUP(
@@ -336,7 +336,7 @@ FROM
             7.0|          9.0|           13.0|
 
 
--- What is the word count for every letter in the words table and what is the percentage of the total?
+-- 15. What is the word count for every letter in the words table and what is the percentage of the total?
 -- Sort by letter.
 
 WITH get_letter_count AS (
@@ -391,7 +391,7 @@ x     |       507|            0.14|
 y     |      1143|            0.31|
 z     |      1387|            0.37|
 
--- What row number is the word 'shaker' in?  
+-- 16. What row number is the word 'shaker' in?  
 
 WITH get_word_row_number AS (
 	SELECT
@@ -414,7 +414,7 @@ Row Number|Cool Last Name|
 ----------+--------------+
     287206|shaker        |
 
--- Find the count of all the palindromes (Excluding single and two letter words)
+-- 17. Find the count of all the palindromes (Excluding single and two letter words)
 
 SELECT
 	COUNT(*) AS n_palindromes
@@ -430,7 +430,7 @@ n_palindromes|
 -------------+
           193|
 
--- Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
+-- 18. Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
 
 SELECT
 	WORD AS r_palindromes
@@ -459,7 +459,7 @@ rever        |
 reviver      |
 rotator      |
 
--- Give me the 15th palindrome (Excluding single and double letter words) 
+-- 19a. Give me the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
 SELECT
@@ -475,7 +475,7 @@ ORDER BY
 LIMIT 1 
 OFFSET 14;
 
--- Or use the ROW_NUMBER() window function.
+-- 19b. Or use the ROW_NUMBER() window function.
 
 WITH get_nth_palindrome as (
 	SELECT
@@ -502,7 +502,7 @@ WHERE rn = 15;
 -----------------+
 sooloos          |
 
--- Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
+-- 20. Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
 
 SELECT
 	word,
@@ -530,7 +530,7 @@ bares |serab   |
 barf  |frab    |
 barger|regrab  |
 
--- Find the row number for every month of the year and
+-- 21. Find the row number for every month of the year and
 -- sort them in chronological order
 
 WITH get_month_row_number AS (
@@ -579,7 +579,7 @@ Row Number|Month    |
     209152|november |
      78173|december |
      
--- Create a function that returns the number of words between a low and high letter count.
+-- 22. Create a function that returns the number of words between a low and high letter count.
  
 DROP FUNCTION get_word_count;     
 
@@ -611,7 +611,7 @@ get_word_count|
          94976|
 
 
--- Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
+-- 23. Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
          
 DROP FUNCTION count_the_vowels;
 
@@ -670,10 +670,11 @@ aals  |           4|          2|         2|           50.00|               50.00
 aam   |           3|          2|         1|           66.67|               33.33|
 
 
--- Find the anagrams.
+-- 24. Find the anagrams.
 
 -- This query can take a long time to execute. To shorten execution time, we will 
 -- only look for words that start with the letter 'R' and are only 4 or 5 characters in length.
+-- We will also limit the results to the first 10.
 
 -- Create a function that sorts word into alphabetical order
 DROP FUNCTION sort_word;
