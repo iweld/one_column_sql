@@ -672,6 +672,8 @@ aam   |           3|          2|         1|           66.67|               33.33
 
 -- Find the anagrams in this table
 
+
+-- Create a function that sorts word into alphabetical order
 DROP FUNCTION sort_word;
 
 CREATE FUNCTION sort_word (my_word text)
@@ -681,93 +683,72 @@ AS
 $$
 	DECLARE sorted_word TEXT;
 	BEGIN
+		-- 2. Aggregate sorted array back into a string
 		SELECT string_agg(tmp.split_word, '') AS sorted_str
 		FROM
+			-- 1. Split the word into an array and sort array after unnesting
 			(SELECT UNNEST(regexp_split_to_array(my_word, '')) AS split_word ORDER BY split_word) AS tmp
 		INTO sorted_word;
 	RETURN sorted_word;
 	END;
 $$;
 
-DROP TABLE IF EXISTS dummy;
+DROP TABLE IF EXISTS sorted_words;
 
-CREATE TABLE dummy (
-	id serial,
-	word text
+-- Create a temp table with sorted words and add a row number as an id.
+CREATE TEMP TABLE sorted_words AS (
+	SELECT
+		ROW_NUMBER() OVER () AS rn,
+		word,
+		sort_word(word) AS sorted
+	FROM
+		words
 );
 
-INSERT INTO dummy (word)
-VALUES
-	('dude'),
-	('lust'),
-	('slut'),
-	('joke'),
-	('keep'),
-	('peek'),
-	('diet'),
-	('tied'),
-	('edit'),
-	('coats'),
-	('hater'),
-	('coast'),
-	('tacos'),
-	('traps'),
-	('parts'),
-	('strap'),
-	('with'),
-	('school'),
-	('loser'),
-	('roles');
+-- Test the new temp table
+SELECT * FROM sorted_words;
 
-WITH add_row_num AS (
-	SELECT
-		ROW_NUMBER() OVER () AS id,
-		word
-	FROM
-		dummy
-),
-get_anagram AS (
+WITH get_anagram AS (
 	SELECT 
-		d1.word AS word,
+		s1.word AS word,
 		CASE
-			WHEN length(d1.word) = length(d2.word) THEN
+			WHEN length(s1.sorted) = length(s2.sorted) THEN
 				case
-					WHEN sort_word(d1.word) = sort_word(d2.word) THEN d2.word
+					WHEN s1.sorted = s2.sorted THEN s2.word
 					ELSE NULL
 				END
 		END AS anagram
-	FROM add_row_num AS d1
-	JOIN add_row_num AS d2
-	ON d1.id <> d2.id
+	FROM sorted_words AS s1
+	JOIN sorted_words AS s2
+	ON s1.rn <> s2.rn
 )
 SELECT
 	word,
 	string_agg(anagram, ', ') AS anagrams
 FROM
 	get_anagram
-WHERE anagram IS NOT null
+WHERE anagram IS NOT NULL
+AND length(word) > 3
+AND length(word) <= 5
+AND word LIKE 'r%'
 GROUP BY word
-ORDER BY word;
+ORDER BY word
+LIMIT 10;
 	
 -- Results:
 
-word |anagrams    |
------+------------+
-coast|coats, tacos|
-coats|coast, tacos|
-diet |tied, edit  |
-edit |diet, tied  |
-keep |peek        |
-loser|roles       |
-lust |slut        |
-parts|traps, strap|
-peek |keep        |
-roles|loser       |
-slut |lust        |
-strap|traps, parts|
-tacos|coats, coast|
-tied |diet, edit  |
-traps|parts, strap|
+word |anagrams                    |
+-----+----------------------------+
+raad |adar, arad, rada            |
+raash|asarh, haars, haras, sarah  |
+rabal|labra                       |
+rabat|barat                       |
+rabi |abir, abri, bari            |
+rabic|baric, carib                |
+rabid|barid, bidar, braid         |
+rabin|abrin, bairn, brain, brian  |
+rabot|abort, boart, tabor         |
+race |acer, acre, care, cera, crea|
 
 
 
