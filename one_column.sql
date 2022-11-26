@@ -672,6 +672,8 @@ aam   |           3|          2|         1|           66.67|               33.33
 
 -- Find the anagrams in this table
 
+-- This query can take a long time to execute so will only look for words that start
+-- with the letter 'R' and are only 4 or 5 characters in length.
 
 -- Create a function that sorts word into alphabetical order
 DROP FUNCTION sort_word;
@@ -712,8 +714,10 @@ WITH get_anagram AS (
 	SELECT 
 		s1.word AS word,
 		CASE
+			-- Only check words of the same length
 			WHEN length(s1.sorted) = length(s2.sorted) THEN
-				case
+				CASE
+					-- If sorted words are the same, they contain the same letters and are anagrams
 					WHEN s1.sorted = s2.sorted THEN s2.word
 					ELSE NULL
 				END
@@ -724,6 +728,7 @@ WITH get_anagram AS (
 )
 SELECT
 	word,
+	-- Aggregate anagrams into the same row and seperate with a comma
 	string_agg(anagram, ', ') AS anagrams
 FROM
 	get_anagram
