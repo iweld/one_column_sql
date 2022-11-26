@@ -707,6 +707,95 @@ aals  |           4|          2|         2|           50.00|               50.00
 aam   |           3|          2|         1|           66.67|               33.33|
 
 
+#### Find the anagrams.
+
+❗  **Note** ❗
+
+##### This query can take a long time to execute. To shorten execution time, we will only look for words that start with the letter 'R' and are only 4 or 5 characters in length.  We will also limit the results to the first 10.
+
+````sql
+-- Create a function that sorts word into alphabetical order
+DROP FUNCTION sort_word;
+
+CREATE FUNCTION sort_word (my_word text)
+RETURNS TEXT
+LANGUAGE plpgsql
+AS
+$$
+	DECLARE sorted_word TEXT;
+	BEGIN
+		-- 2. Aggregate sorted array back into a string
+		SELECT string_agg(tmp.split_word, '') AS sorted_str
+		FROM
+			-- 1. Split the word into an array and sort array after unnesting
+			(SELECT UNNEST(regexp_split_to_array(my_word, '')) AS split_word ORDER BY split_word) AS tmp
+		INTO sorted_word;
+	RETURN sorted_word;
+	END;
+$$;
+
+DROP TABLE IF EXISTS sorted_words;
+
+-- Create a temp table with sorted words and add a row number as an id.
+CREATE TEMP TABLE sorted_words AS (
+	SELECT
+		ROW_NUMBER() OVER () AS rn,
+		word,
+		sort_word(word) AS sorted
+	FROM
+		words
+);
+
+-- Test the new temp table
+SELECT * FROM sorted_words;
+
+WITH get_anagram AS (
+	SELECT 
+		s1.word AS word,
+		CASE
+			-- Only check words of the same length
+			WHEN length(s1.sorted) = length(s2.sorted) THEN
+				CASE
+					-- If sorted words are the same, they contain the same letters and are anagrams
+					WHEN s1.sorted = s2.sorted THEN s2.word
+					ELSE NULL
+				END
+		END AS anagram
+	FROM sorted_words AS s1
+	JOIN sorted_words AS s2
+	ON s1.rn <> s2.rn
+)
+SELECT
+	word,
+	-- Aggregate anagrams into the same row and seperate with a comma
+	string_agg(anagram, ', ') AS anagrams
+FROM
+	get_anagram
+WHERE anagram IS NOT NULL
+AND length(word) > 3
+AND length(word) <= 5
+AND word LIKE 'r%'
+GROUP BY word
+ORDER BY word
+LIMIT 10;
+````
+
+**Results:**
+
+word |anagrams                    |
+-----|----------------------------|
+raad |adar, arad, rada            |
+raash|asarh, haars, haras, sarah  |
+rabal|labra                       |
+rabat|barat                       |
+rabi |abir, abri, bari            |
+rabic|baric, carib                |
+rabid|barid, bidar, braid         |
+rabin|abrin, bairn, brain, brian  |
+rabot|abort, boart, tabor         |
+race |acer, acre, care, cera, crea|
+
+
 
 
 

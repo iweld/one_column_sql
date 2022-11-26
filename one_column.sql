@@ -670,10 +670,10 @@ aals  |           4|          2|         2|           50.00|               50.00
 aam   |           3|          2|         1|           66.67|               33.33|
 
 
--- Find the anagrams in this table
+-- Find the anagrams.
 
--- This query can take a long time to execute so will only look for words that start
--- with the letter 'R' and are only 4 or 5 characters in length.
+-- This query can take a long time to execute. To shorten execution time, we will 
+-- only look for words that start with the letter 'R' and are only 4 or 5 characters in length.
 
 -- Create a function that sorts word into alphabetical order
 DROP FUNCTION sort_word;
