@@ -711,11 +711,12 @@ CREATE TEMP TABLE sorted_words AS (
 -- Test the new temp table
 SELECT * FROM sorted_words;
 
+-- Using a CTE, check for Anagrams
 WITH get_anagram AS (
 	SELECT 
 		s1.word AS word,
 		CASE
-			-- Only check words of the same length
+			-- Only check words of the same length.
 			WHEN length(s1.sorted) = length(s2.sorted) THEN
 				CASE
 					-- If sorted words are the same, they contain the same letters and are anagrams
@@ -755,7 +756,6 @@ rabid|barid, bidar, braid         |
 rabin|abrin, bairn, brain, brian  |
 rabot|abort, boart, tabor         |
 race |acer, acre, care, cera, crea|
-
 
 
 
