@@ -1,4 +1,4 @@
-# one_column_sql
+# Dictionary Challenge
 
 ## Introduction
 In April of 2020, during the Covid "Lockdown" a reddit member posted a question to the  [SQL subreddit](https://www.reddit.com/r/SQL/ "https://www.reddit.com/r/SQL/") titled "[What are some good resources to practice SQL? (Practice through exercises)](https://www.reddit.com/r/SQL/comments/g4ct1l/what_are_some_good_resources_to_practice_sql/ "https://www.reddit.com/r/SQL/comments/g4ct1l/what_are_some_good_resources_to_practice_sql/")".  A very active and knowledgeable [member](https://www.reddit.com/user/stiffupperleg/ "https://www.reddit.com/user/stiffupperleg/") of the subreddit posted this insightful [response](https://github.com/iweld/one_column_sql/blob/main/dictionary_challenge.md "Want to really learn some advanced SQL?").
