@@ -17,7 +17,7 @@ FROM
 '** Path to your **/csv/words.csv'
 DELIMITER ',';
 
--- 1. Test table by randomly grabbing an awesome word from the table
+-- Test table by randomly grabbing an awesome word from the table
 
 SELECT
 	WORD AS awesome_word
@@ -32,7 +32,7 @@ awesome_word|
 ------------+
 shaker      |
 
--- 2. How many words are in our table?
+-- How many words are in our table?
 
 SELECT
 	COUNT(*) AS word_count
@@ -45,10 +45,10 @@ count |
 ------+
 370103|
 
--- 3. How many words start with the letter 'j'?
+-- How many words start with the letter 'j'?
 
 SELECT
-	COUNT(*) AS j_count
+	COUNT(*) AS start_j_count
 FROM
 	WORDS
 WHERE
@@ -56,58 +56,86 @@ WHERE
 
 -- Results:
 
-j_count|
--------+
-   2840|
+start_j_count|
+-------------+
+         2840|
    
--- 4. How many words are x letters long? (Excluding single letters)
+-- How many words start with the letter 'j'?
    
 SELECT
-	char_length(word) AS word_length,
-	count(*) AS word_count
+	COUNT(*) AS end_j_count
 FROM
-	words
-WHERE char_length(word) > 1
-GROUP BY
-	word_length
-ORDER BY
+	WORDS
+WHERE
+	WORD LIKE '%j';
+
+-- Results:
+
+end_j_count|
+-----------+
+         30|
+   
+-- How many words are x letters long and what is the percentage of the total number of words?
+
+WITH get_word_length_count AS (         
+	SELECT
+		char_length(word) AS word_length,
+		count(*) AS word_count
+	FROM
+		words
+	WHERE char_length(word) > 1
+	GROUP BY
+		word_length
+	ORDER BY
+		word_length
+)
+SELECT
+	word_length,
+	word_count,
+	round(100 * word_count / (SELECT sum(word_count) FROM get_word_length_count), 4) AS count_percentage
+FROM
+	get_word_length_count
+GROUP BY 
+	word_length,
+	word_count
+ORDER BY 
 	word_length;
 
 -- Results:
 
-word_length|word_count|
------------+----------+
-          2|       427|
-          3|      2130|
-          4|      7186|
-          5|     15918|
-          6|     29874|
-          7|     41998|
-          8|     51627|
-          9|     53402|
-         10|     45872|
-         11|     37539|
-         12|     29125|
-         13|     20944|
-         14|     14149|
-         15|      8846|
-         16|      5182|
-         17|      2967|
-         18|      1471|
-         19|       760|
-         20|       359|
-         21|       168|
-         22|        74|
-         23|        31|
-         24|        12|
-         25|         8|
-         27|         3|
-         28|         2|
-         29|         2|
-         31|         1|
+word_length|word_count|count_percentage|
+-----------+----------+----------------+
+          2|       427|          0.1154|
+          3|      2130|          0.5756|
+          4|      7186|          1.9418|
+          5|     15918|          4.3013|
+          6|     29874|          8.0724|
+          7|     41998|         11.3484|
+          8|     51627|         13.9503|
+          9|     53402|         14.4300|
+         10|     45872|         12.3953|
+         11|     37539|         10.1436|
+         12|     29125|          7.8700|
+         13|     20944|          5.6594|
+         14|     14149|          3.8233|
+         15|      8846|          2.3903|
+         16|      5182|          1.4002|
+         17|      2967|          0.8017|
+         18|      1471|          0.3975|
+         19|       760|          0.2054|
+         20|       359|          0.0970|
+         21|       168|          0.0454|
+         22|        74|          0.0200|
+         23|        31|          0.0084|
+         24|        12|          0.0032|
+         25|         8|          0.0022|
+         27|         3|          0.0008|
+         28|         2|          0.0005|
+         29|         2|          0.0005|
+         31|         1|          0.0003|
          
 
--- 5. How many words contain 'jaime'?
+-- How many words contain 'jaime'?
 
 SELECT
 	COUNT(*) AS jaime_count
@@ -122,7 +150,7 @@ count|
 -----+
     1|
 
--- 6. There's only one and only.  How many words contain 'shaker'?
+-- There's only one and only.  How many words contain 'shaker'?
 
 SELECT
 	COUNT(*) AS shaker_count
@@ -137,7 +165,7 @@ count|
 -----+
    13|
 
--- 7. 13? Must be a lucky word.  What are those words?
+-- 13? Must be a lucky word.  What are those words?
 
 SELECT
 	WORD
@@ -164,7 +192,7 @@ shakerism   |
 shakerlike  |
 shakers     |
 
--- 8. Convert words that contain 'shaker' to uppercase and concatnate their length (#)
+-- Convert words that contain 'shaker' to uppercase and concatnate their length (#)
      
 SELECT
 	upper(WORD) || ' (' || length(word) || ')' AS upper_case
@@ -191,7 +219,7 @@ SHAKERISM (9)    |
 SHAKERLIKE (10)  |
 SHAKERS (7)      |
 
--- 9. What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
+-- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
 
 WITH get_lag_lead AS (
 	SELECT
@@ -213,7 +241,7 @@ before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
--- 10. What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
+-- What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
 
 WITH get_lag_lead AS (
 	SELECT
@@ -236,7 +264,7 @@ five_before_shaker|ten_after_shaker|
 shaken            |shakespearean   |
 
 
--- 11. What is the longest word in this table and how many characters does it contain?
+-- What is the longest word in this table and how many characters does it contain?
 -- Use the DENSE_RANK() function
 
 WITH get_word_length_rank AS (
@@ -261,7 +289,7 @@ Longest Word                   |Word Length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
--- 12. What are the top 3 longest words in this table and how many characters do they contain?
+-- What are the top 3 longest words in this table and how many characters do they contain?
 -- Use DENSE_RANK() function and include ties.
 
 WITH get_word_length_rank AS (
@@ -291,7 +319,7 @@ rank_number|top_three_longest_words        |word_length|
           3|antidisestablishmentarianism   |         28|
           3|hydroxydehydrocorticosterone   |         28|
 
--- 13a. What is the average length of a word?
+-- What is the average length of a word?
 
 SELECT
 	AVG(LENGTH(WORD)) avg_length
@@ -304,7 +332,7 @@ avg_length        |
 ------------------+
 9.4424984396235643|
 
--- 13b. That returned a floating point value.  Can you round that number to 2 decimal places?
+-- That returned a floating point value.  Can you round that number to 2 decimal places?
 
 SELECT
 	ROUND(AVG(LENGTH(WORD)), 2) AS rounded_length
@@ -317,7 +345,7 @@ rounded_length|
 --------------+
           9.44|
 
--- 14. What is the 25th percentile, Median and 90th percentile length?
+-- What is the 25th percentile, Median and 90th percentile length?
 
 SELECT
 	PERCENTILE_CONT(0.25) WITHIN GROUP(
@@ -336,7 +364,7 @@ FROM
             7.0|          9.0|           13.0|
 
 
--- 15. What is the word count for every letter in the words table and what is the percentage of the total?
+-- What is the word count for every letter in the words table and what is the percentage of the total?
 -- Sort by letter.
 
 WITH get_letter_count AS (
@@ -391,7 +419,7 @@ x     |       507|            0.14|
 y     |      1143|            0.31|
 z     |      1387|            0.37|
 
--- 16. What row number is the word 'shaker' in?  
+-- What row number is the word 'shaker' in?  
 
 WITH get_word_row_number AS (
 	SELECT
@@ -414,7 +442,7 @@ Row Number|Cool Last Name|
 ----------+--------------+
     287206|shaker        |
 
--- 17. Find the count of all the palindromes (Excluding single and two letter words)
+-- Find the count of all the palindromes (Excluding single and two letter words)
 
 SELECT
 	COUNT(*) AS n_palindromes
@@ -430,7 +458,7 @@ n_palindromes|
 -------------+
           193|
 
--- 18. Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
+-- Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
 
 SELECT
 	WORD AS r_palindromes
@@ -459,7 +487,7 @@ rever        |
 reviver      |
 rotator      |
 
--- 19a. Give me the 15th palindrome (Excluding single and double letter words) 
+-- Give me the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
 SELECT
@@ -475,7 +503,7 @@ ORDER BY
 LIMIT 1 
 OFFSET 14;
 
--- 19b. Or use the ROW_NUMBER() window function.
+-- Or use the ROW_NUMBER() window function.
 
 WITH get_nth_palindrome as (
 	SELECT
@@ -502,7 +530,7 @@ WHERE rn = 15;
 -----------------+
 sooloos          |
 
--- 20. Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
+-- Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
 
 SELECT
 	word,
@@ -530,7 +558,7 @@ bares |serab   |
 barf  |frab    |
 barger|regrab  |
 
--- 21. Find the row number for every month of the year and
+-- Find the row number for every month of the year and
 -- sort them in chronological order
 
 WITH get_month_row_number AS (
@@ -579,7 +607,7 @@ Row Number|Month    |
     209152|november |
      78173|december |
      
--- 22. Create a function that returns the number of words between a low and high letter count.
+-- Create a function that returns the number of words between a low and high letter count.
  
 DROP FUNCTION get_word_count;     
 
@@ -611,7 +639,7 @@ get_word_count|
          94976|
 
 
--- 23. Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
+-- Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
          
 DROP FUNCTION count_the_vowels;
 
@@ -670,7 +698,7 @@ aals  |           4|          2|         2|           50.00|               50.00
 aam   |           3|          2|         1|           66.67|               33.33|
 
 
--- 24. Find the anagrams.
+-- Find the anagrams.
 
 -- This query can take a long time to execute. To shorten execution time, we will 
 -- only look for words that start with the letter 'R' and are only 4 or 5 characters in length.

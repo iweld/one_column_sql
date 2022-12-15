@@ -13,7 +13,8 @@ Check out [My Questions and Answers](https://github.com/iweld/one_column_sql/blo
 - Test table by randomly selecting a word.
 - How many words are in our table?
 - How many words start with the letter '**J**'?
-- How many words are **X** letters long?
+- How many words end with the letter '**J**'?
+- How many words are x letters long and what is the percentage of the total number of words?
 - How many words contain '**jaime**'?
 - How many words contain '**shaker**'?
 - What are those words?
