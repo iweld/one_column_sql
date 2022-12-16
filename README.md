@@ -21,7 +21,7 @@ Check out [My Questions and Answers](https://github.com/iweld/one_column_sql/blo
 - Convert the words that contain '**shaker**' to uppercase and concatnate their lengths (#).
 - Use two different methods to find the words that come before and after 'shaker'.
 - What words comes 5 words before and 10 words after **'shaker**'? Using the LAG()/LEAD() functions.
-- What is the longest word in this table and how many characters does it contain?
+- Use two different methods to find the longest word in this table and how many characters it contains.
 - What are the top 3 longest words in this table and how many characters do they contain (including ties)?
 - What is the average length of a word?
 - What is the 25th percentile, Median and 90th percentile length?

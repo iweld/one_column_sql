@@ -299,8 +299,23 @@ five_before_shaker|ten_after_shaker|
 shaken            |shakespearean   |
 
 
--- What is the longest word in this table and how many characters does it contain?
--- Use the DENSE_RANK() function
+-- Write two queries that find the longest word in this table and how many characters it contains.
+
+-- Using Limit
+
+SELECT
+	word AS longest_word,
+	length(word) AS "Word Length"
+FROM
+	words
+ORDER BY "Word Length" DESC
+LIMIT 1;
+
+longest_word                   |Word Length|
+-------------------------------+-----------+
+dichlorodiphenyltrichloroethane|         31|
+
+-- Using the DENSE_RANK() function
 
 WITH get_word_length_rank AS (
 	SELECT 
