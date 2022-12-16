@@ -299,7 +299,7 @@ five_before_shaker|ten_after_shaker|
 shaken            |shakespearean   |
 
 
--- Write two queries that find the longest word in this table and how many characters it contains.
+-- Use two different methods to find the longest word in this table and how many characters it contains.
 
 -- Using Limit
 
@@ -540,6 +540,8 @@ rotator      |
 -- Give me the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
+-- Using LIMIT/OFFSET
+
 SELECT
 	WORD AS "15th_s_palindrome"
 FROM
@@ -553,7 +555,7 @@ ORDER BY
 LIMIT 1 
 OFFSET 14;
 
--- Or use the ROW_NUMBER() window function.
+-- USING ROW_NUMBER() function.
 
 WITH get_nth_palindrome as (
 	SELECT
