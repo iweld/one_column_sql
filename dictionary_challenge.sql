@@ -219,7 +219,45 @@ SHAKERISM (9)    |
 SHAKERLIKE (10)  |
 SHAKERS (7)      |
 
+-- Use two different methods to find the words that come before and after 'shaker'.
 -- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
+
+-- Using ROW_NUMBER()
+
+WITH get_row_number AS (
+	SELECT	
+		word,
+		ROW_NUMBER() OVER () AS rn
+	FROM
+		words
+),
+get_shaker_row AS (
+	SELECT
+		rn, 
+		rn - 1 AS before_rn,
+		rn + 1 AS after_rn
+	FROM 
+		get_row_number
+	WHERE
+		word = 'shaker'
+)
+SELECT
+	DISTINCT 
+	(SELECT word FROM get_row_number WHERE rn = before_rn) AS before_shaker,
+	(SELECT word FROM get_row_number WHERE rn = after_rn) AS after_shaker
+FROM 
+	get_row_number AS grn
+JOIN 
+	get_shaker_row AS gsr
+ON grn.rn = gsr.rn;
+
+-- Results:
+
+before_shaker|after_shaker|
+-------------+------------+
+shakeproof   |shakerag    |
+
+-- USING LEAD()/LAG()
 
 WITH get_lag_lead AS (
 	SELECT
