@@ -222,8 +222,6 @@ SHAKERS (7)      |
 -- Use two different methods to find the words that come before and after 'shaker'.
 -- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
 
--- Using ROW_NUMBER()
-
 WITH get_row_number AS (
 	SELECT	
 		word,
@@ -250,14 +248,13 @@ FROM
 JOIN 
 	get_shaker_row AS gsr
 ON grn.rn = gsr.rn;
-
+	
 -- Results:
 
 before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
--- USING LEAD()/LAG()
 
 WITH get_lag_lead AS (
 	SELECT
