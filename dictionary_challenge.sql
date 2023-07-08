@@ -11,10 +11,12 @@ CREATE TABLE WORDS (
 );
 
 -- Import csv from wheverever you have it stored.  Note the delimiter.
+-- If you are using Docker, you must copy the CSV to the docker container.
+-- Console Example: $ docker cp ./csv/words.csv your-container-name-postgres-1:/tmp
 
 COPY WORDS
 FROM
-'** Path to your **/csv/words.csv'
+'/tmp/words.csv'
 DELIMITER ',';
 
 -- Test table by randomly grabbing an awesome word from the table
