@@ -2,10 +2,15 @@
 	Simple PostgreSQL exercises using one column of English words.
 */
 
+-- Create Schema
+
+CREATE SCHEMA dictionary_challenge;
+
 
 -- Create a one column table and use that column as the primary key
-DROP TABLE IF EXISTS WORDS;
-CREATE TABLE WORDS (
+
+--DROP TABLE IF EXISTS WORDS;
+CREATE TABLE words (
 	WORD VARCHAR(50),
 	PRIMARY KEY (WORD)
 );
