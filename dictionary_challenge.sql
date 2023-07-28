@@ -9,10 +9,10 @@ CREATE SCHEMA dictionary_challenge;
 
 -- Create a one column table and use that column as the primary key
 
---DROP TABLE IF EXISTS WORDS;
-CREATE TABLE words (
-	WORD VARCHAR(50),
-	PRIMARY KEY (WORD)
+DROP TABLE IF EXISTS dictionary_challenge.word_list;
+CREATE TABLE dictionary_challenge.word_list (
+	words VARCHAR(50) NOT NULL,
+	PRIMARY KEY (words)
 );
 
 -- Import csv from wheverever you have it stored.  Note the delimiter.
