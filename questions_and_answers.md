@@ -1186,6 +1186,8 @@ LIMIT 10;
 </details>
 <br>
 
+[Return to README page](https://github.com/iweld/one_column_sql "Return to README page") file.
+
 
 
 
