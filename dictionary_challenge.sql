@@ -1,10 +1,11 @@
 /*
-	Simple PostgreSQL exercises using one column of English words.
+	Simple PostgreSQL exercises using only one column of English words.
 */
 
 -- Create Schema
 
 CREATE SCHEMA dictionary_challenge;
+SET search_path = dictionary_challenge;
 
 
 -- Create a one column table and use that column as the primary key
@@ -15,23 +16,40 @@ CREATE TABLE dictionary_challenge.word_list (
 	PRIMARY KEY (words)
 );
 
--- Import csv from wheverever you have it stored.  Note the delimiter.
--- If you are using Docker, you must copy the CSV to the docker container.
+-- Copy csv into our new table.  Note the delimiter.
+-- If you are using Docker, you must copy the CSV file to the docker container.
 -- Console Example: $ docker cp ./csv/words.csv your-container-name-postgres-1:/tmp
 
-COPY WORDS
+COPY dictionary_challenge.word_list
 FROM
 '/tmp/words.csv'
 DELIMITER ',';
 
--- Test table by randomly grabbing an awesome word from the table
+-- If you prefer using DML insert commands you can find the entire table and contents in '/sql/words.sql'
+
+-- Lets test the table to make sure everything is working properly.  
+
+-- 1. How many words are in our table?
 
 SELECT
-	WORD AS awesome_word
+	COUNT(*) AS word_count
 FROM
-	WORDS
-WHERE
-	WORD = 'shaker';
+	dictionary_challenge.word_list;
+
+-- Results:
+
+word_count|
+----------+
+    370103|
+
+-- 2. Select a random, awesome word from the table.
+
+SELECT
+	words AS awesome_word -- We use AS to create an alias or temp name for our word.
+FROM
+	dictionary_challenge.word_list
+WHERE -- We use the WHERE clause to filter the results.
+	words = 'shaker';
 
 -- Results:
 
@@ -39,69 +57,58 @@ awesome_word|
 ------------+
 shaker      |
 
--- How many words are in our table?
+-- 3. How many words start with the letter 'j'?
 
 SELECT
-	COUNT(*) AS word_count
+	COUNT(*) AS start_with_j_count
 FROM
-	WORDS;
-
--- Results:
-
-count |
-------+
-370103|
-
--- How many words start with the letter 'j'?
-
-SELECT
-	COUNT(*) AS start_j_count
-FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE 'j%';
+	words LIKE 'j%'; -- The LIKE/ILIKE (case insensitive) operator is used to match text values against a pattern using wildcards.
 
 -- Results:
 
-start_j_count|
--------------+
-         2840|
+start_with_j_count|
+------------------+
+              2840|
    
--- How many words start with the letter 'j'?
+-- 4. How many words end with the letter 'j'?
    
 SELECT
-	COUNT(*) AS end_j_count
+	COUNT(*) AS end_with_j_count
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE '%j';
+	words LIKE '%j'; -- The LIKE/ILIKE (case insensitive) operator is used to match text values against a pattern using wildcards.
 
 -- Results:
 
-end_j_count|
------------+
-         30|
+end_with_j_count|
+----------------+
+              30|
    
--- How many words are x letters long and what is the percentage of the total number of words?
+-- 5. How many words are x letters long and what is the percentage of the total number of words of that length?
 
+-- Create a CTE (Common Table Expression) to get Word Count for X length words.
 WITH get_word_length_count AS (         
 	SELECT
-		char_length(word) AS word_length,
+		char_length(words) AS word_length, -- char_length functions returns the numbers of characters in a word.
 		count(*) AS word_count
 	FROM
-		words
-	WHERE char_length(word) > 1
+		dictionary_challenge.word_list
+	WHERE char_length(words) > 1 -- Filter for words that contain 2 or characters.
 	GROUP BY
-		word_length
-	ORDER BY
+		word_length  -- Results MUST be grouped when using Aggregate functions (count())
+	ORDER BY -- Order the results in ascending order (default.)
 		word_length
 )
 SELECT
 	word_length,
 	word_count,
-	round(100 * word_count / (SELECT sum(word_count) FROM get_word_length_count), 4) AS count_percentage
+	round(100 * word_count / (SELECT sum(word_count) 
+		FROM get_word_length_count), 4) AS count_percentage -- Round the results to the 4th decimal place.
 FROM
-	get_word_length_count
+	get_word_length_count -- Select from the results of the CTE above.
 GROUP BY 
 	word_length,
 	word_count
@@ -142,29 +149,31 @@ word_length|word_count|count_percentage|
          31|         1|          0.0003|
          
 
--- How many words contain 'jaime'?
+-- 6. How many words contain 'jaime'?
 
 SELECT
 	COUNT(*) AS jaime_count
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE '%jaime%';
+	words LIKE '%jaime%';
 
 -- Results:
 
-count|
------+
-    1|
+jaime_count|
+-----------+
+          1|
 
--- There's only one and only.  How many words contain 'shaker'?
+-- There's only one and only.  
+
+-- 7. How many words contain the word 'shaker'?
 
 SELECT
 	COUNT(*) AS shaker_count
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE '%shaker%';
+	words LIKE '%shaker%';
 
 -- Results:
 
@@ -172,71 +181,73 @@ count|
 -----+
    13|
 
--- 13? Must be a lucky word.  What are those words?
+-- 13? Must be a lucky word.  
+
+-- 8. What are those words?
 
 SELECT
-	WORD
+	words AS words_containing_shaker
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE '%shaker%';
+	words LIKE '%shaker%';
 
 -- Results:
 
-word        |
-------------+
-boneshaker  |
-earthshaker |
-hallanshaker|
-handshaker  |
-headshaker  |
-saltshaker  |
-shaker      |
-shakerag    |
-shakerdom   |
-shakeress   |
-shakerism   |
-shakerlike  |
-shakers     |
+words_containing_shaker|
+-----------------------+
+boneshaker             |
+earthshaker            |
+hallanshaker           |
+handshaker             |
+headshaker             |
+saltshaker             |
+shaker                 |
+shakerag               |
+shakerdom              |
+shakeress              |
+shakerism              |
+shakerlike             |
 
--- Convert words that contain 'shaker' to uppercase and concatnate their length (#)
+-- 9. Convert the words that contain 'shaker' to uppercase and concatnate their length (#)
      
 SELECT
-	upper(WORD) || ' (' || length(word) || ')' AS upper_case
+	-- The upper() function convers letters to uppercase. lower() to lowercase and initcap() to capitalize the first letter of a string.
+	upper(words) || ' (' || length(words) || ')' AS uppercase_and_length -- In Postgres we could use the concat() function OR || TO concatnate strings
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD LIKE '%shaker%';
+	words LIKE '%shaker%';
 	
 -- Results:
 
-upper_case       |
------------------+
-BONESHAKER (10)  |
-EARTHSHAKER (11) |
-HALLANSHAKER (12)|
-HANDSHAKER (10)  |
-HEADSHAKER (10)  |
-SALTSHAKER (10)  |
-SHAKER (6)       |
-SHAKERAG (8)     |
-SHAKERDOM (9)    |
-SHAKERESS (9)    |
-SHAKERISM (9)    |
-SHAKERLIKE (10)  |
-SHAKERS (7)      |
+uppercase_and_length|
+--------------------+
+BONESHAKER (10)     |
+EARTHSHAKER (11)    |
+HALLANSHAKER (12)   |
+HANDSHAKER (10)     |
+HEADSHAKER (10)     |
+SALTSHAKER (10)     |
+SHAKER (6)          |
+SHAKERAG (8)        |
+SHAKERDOM (9)       |
+SHAKERESS (9)       |
+SHAKERISM (9)       |
+SHAKERLIKE (10)     |
+SHAKERS (7)         |
 
--- Use two different methods to find the words that come before and after 'shaker'.
--- What word comes before and after 'shaker'?  Using the LAG()/LEAD() function.
+-- 10. Use two different methods to find the words that come before and after 'shaker'.
 
+-- Use a WINDOW function to give each word a unique row number.
 WITH get_row_number AS (
 	SELECT	
-		word,
+		words,
 		ROW_NUMBER() OVER () AS rn
 	FROM
-		words
+		dictionary_challenge.word_list
 ),
-get_shaker_row AS (
+get_shaker_row AS ( -- Get the row numbers for shaker and +- 1. 
 	SELECT
 		rn, 
 		rn - 1 AS before_rn,
@@ -244,17 +255,13 @@ get_shaker_row AS (
 	FROM 
 		get_row_number
 	WHERE
-		word = 'shaker'
+		words = 'shaker'
 )
 SELECT
-	DISTINCT 
-	(SELECT word FROM get_row_number WHERE rn = before_rn) AS before_shaker,
-	(SELECT word FROM get_row_number WHERE rn = after_rn) AS after_shaker
+	(SELECT words FROM get_row_number WHERE rn = before_rn) AS before_shaker, -- Use a sub-guery to select shaker row number -1 from CTE
+	(SELECT words FROM get_row_number WHERE rn = after_rn) AS after_shaker -- Use a sub-guery to select shaker row number +1 from CTE
 FROM 
-	get_row_number AS grn
-JOIN 
-	get_shaker_row AS gsr
-ON grn.rn = gsr.rn;
+	get_shaker_row;
 	
 -- Results:
 
@@ -262,20 +269,20 @@ before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
-
+-- Use a CTE with the LEAD/LAG WINDOW functions to get the same results!
 WITH get_lag_lead AS (
 	SELECT
-		word,
-		LAG(word) OVER () AS prev_word,
-		LEAD(word) OVER () AS next_word
-	FROM words
+		words,
+		LAG(words) OVER () AS prev_word,
+		LEAD(words) OVER () AS next_word
+	FROM dictionary_challenge.word_list
 )
 SELECT
 	prev_word AS before_shaker,
 	next_word AS after_shaker
 from
 	get_lag_lead
-WHERE word = 'shaker';
+WHERE words = 'shaker';
 
 -- Results:
 
@@ -283,21 +290,23 @@ before_shaker|after_shaker|
 -------------+------------+
 shakeproof   |shakerag    |
 
--- What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
+-- 11. What word comes 5 words before and 10 words after 'shaker'?  Using the LAG()/LEAD() function.
 
+-- Use CTE with LEAD/LAG WINDOW functions to get values.
 WITH get_lag_lead AS (
 	SELECT
-		word,
-		LAG(word, 5) OVER () AS prev_word,
-		LEAD(word, 10) OVER () AS next_word
-	FROM words
+		words,
+		-- LEAD/LAG functions can accept a second parameter that will move X amount of rows.
+		LAG(words, 5) OVER () AS prev_word,
+		LEAD(words, 10) OVER () AS next_word
+	FROM dictionary_challenge.word_list
 )
 SELECT
 	prev_word AS five_before_shaker,
 	next_word AS ten_after_shaker
 from
 	get_lag_lead
-WHERE word = 'shaker';
+WHERE words = 'shaker';
 
 -- Results:
 
@@ -306,65 +315,67 @@ five_before_shaker|ten_after_shaker|
 shaken            |shakespearean   |
 
 
--- Use two different methods to find the longest word in this table and how many characters it contains.
+-- 12. Use two different methods to find the longest word in this table and how many characters it contains.
 
 -- Using Limit
 
 SELECT
-	word AS longest_word,
-	length(word) AS "Word Length"
+	words AS longest_word,
+	length(words) AS word_length
 FROM
-	words
-ORDER BY "Word Length" DESC
-LIMIT 1;
+	dictionary_challenge.word_list
+ORDER BY 
+	word_length DESC -- Order in descending order (longest to shortest)
+LIMIT 1; -- Limit to only one row (the first row)
 
-longest_word                   |Word Length|
+longest_word                   |word_length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
 -- Using the DENSE_RANK() function
 
+-- Using the DENSE_RANK() function within a CTE
 WITH get_word_length_rank AS (
 	SELECT 
-		WORD AS each_word, 
-		length(word) AS w_length,
-		DENSE_RANK() OVER (ORDER BY length(word) DESC) AS rnk
+		words AS each_word, 
+		length(words) AS word_length,
+		DENSE_RANK() OVER (ORDER BY length(words) DESC) AS rnk -- This function will rank words by their length.  We order by descending order.
 	FROM
-		WORDS
+		dictionary_challenge.word_list
 )
 SELECT
 	each_word AS longest_word,
-	w_length AS word_length
+	word_length
 FROM 
-	get_word_length_rank
+	get_word_length_rank -- Select from the CTE above.
 WHERE 
-	rnk = 1;
+	rnk = 1; -- Only select the highest rank (longest length)
 		
 -- Results:
 		
-Longest Word                   |Word Length|
+longest_word                   |word_length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
--- What are the top 3 longest words in this table and how many characters do they contain?
--- Use DENSE_RANK() function and include ties.
+-- 13. What are the top 3 longest words (including ties) in this table and how many characters do they contain?
 
+-- Use a CTE to get the length of words and rank them in descending order (longest to shortest)
 WITH get_word_length_rank AS (
 	SELECT 
-		WORD AS each_word, 
-		length(word) AS w_length,
-		DENSE_RANK() OVER (ORDER BY length(word) DESC) AS rnk
+		words AS each_word, 
+		length(words) AS word_length,
+		DENSE_RANK() OVER (ORDER BY length(words) DESC) AS rnk
 	FROM
-		WORDS
+		dictionary_challenge.word_list
 )
 SELECT
 	rnk AS rank_number,
 	each_word AS top_three_longest_words,
-	w_length AS word_length
+	word_length
 FROM 
 	get_word_length_rank
 WHERE 
-	rnk <= 3;
+	rnk <= 3; -- Filter words that are ranked #3 or less.
 		
 -- Results:
 		
@@ -376,12 +387,12 @@ rank_number|top_three_longest_words        |word_length|
           3|antidisestablishmentarianism   |         28|
           3|hydroxydehydrocorticosterone   |         28|
 
--- What is the average length of a word?
+-- 14. What is the average length of a word?
 
 SELECT
-	AVG(LENGTH(WORD)) avg_length
+	AVG(LENGTH(words)) avg_length
 FROM
-	WORDS;
+	dictionary_challenge.word_list;
 
 -- Results:
 
@@ -389,12 +400,12 @@ avg_length        |
 ------------------+
 9.4424984396235643|
 
--- That returned a floating point value.  Can you round that number to 2 decimal places?
+-- 15. The previous answer returned a large floating point value.  Can you round that number to 2 decimal places?
 
 SELECT
-	ROUND(AVG(LENGTH(WORD)), 2) AS rounded_length
+	ROUND(AVG(LENGTH(words)), 2) rounded_length
 FROM
-	WORDS;
+	dictionary_challenge.word_list;
 
 -- Results:
 
@@ -402,17 +413,19 @@ rounded_length|
 --------------+
           9.44|
 
--- What is the 25th percentile, Median and 90th percentile length?
+-- 16. What is the 25th percentile, Median and 90th percentile length?
 
+-- For this question we can use the PERCENTILE_CONT function.
+-- The PERCENTILE_CONT function returns the value that corresponds to the specified percentile given a sort specification.          
 SELECT
 	PERCENTILE_CONT(0.25) WITHIN GROUP(
-	ORDER BY length(word)) AS "25th_percentile",
+	ORDER BY length(words)) AS "25th_percentile",
 	PERCENTILE_CONT(0.5) WITHIN GROUP(
-	ORDER BY length(word)) AS median_length,
+	ORDER BY length(words)) AS median_length,
 	PERCENTILE_CONT(0.9) WITHIN GROUP(
-	ORDER BY length(word)) AS "90th_percentile"
+	ORDER BY length(words)) AS "90th_percentile"
 FROM
-	words;
+	dictionary_challenge.word_list;
 
 -- Results:
 
@@ -421,23 +434,25 @@ FROM
             7.0|          9.0|           13.0|
 
 
--- What is the word count for every letter in the words table and what is the percentage of the total?
+-- 17. What is the word count for every letter in the words table and what is the percentage of the total?
 -- Sort by letter.
 
+-- Use a CTE to extract the first letter and count of every word using the SUBSTRING() & COUNT() function.            
 WITH get_letter_count AS (
 	SELECT
-		SUBSTRING(LOWER(word), 1, 1) AS letter,
+		SUBSTRING(LOWER(words), 1, 1) AS letter,
 		COUNT(*) AS word_count
 	FROM
-		words
+		dictionary_challenge.word_list
 	GROUP BY
 		letter
 )
 SELECT 
 	letter,
 	word_count,
-	round((word_count::float / (SELECT count(*) FROM words)*100)::NUMERIC, 2) AS total_percentage
-from
+	-- Find the percentage from the total count of words.  You must cast to numeric to be able to round.
+	round((word_count::float / (SELECT count(*) FROM dictionary_challenge.word_list)*100)::NUMERIC, 2) AS total_percentage
+FROM
 	get_letter_count
 GROUP BY 
 	letter,
@@ -476,22 +491,23 @@ x     |       507|            0.14|
 y     |      1143|            0.31|
 z     |      1387|            0.37|
 
--- What row number is the word 'shaker' in?  
+-- 18. What row number is the word 'shaker' in?  
 
+-- Use CTE and use ROW_NUMBER WINDOW funtion to give a unique row number to every word.
 WITH get_word_row_number AS (
 	SELECT
-		WORDS.*,
-		ROW_NUMBER() OVER() AS ROW_NUM
+		words,
+		ROW_NUMBER() OVER() AS row_num
 	FROM
-		WORDS
+		dictionary_challenge.word_list
 )
 SELECT
-	ROW_NUM AS "Row Number",
-	WORD AS "Cool Last Name"
+	row_num AS "Row Number",
+	words AS "Cool Last Name"
 FROM
 	get_word_row_number
 WHERE
-	WORD = 'shaker';
+	words = 'shaker'; -- Filter by the cool last name 'shaker'
 
 -- Results:
 
@@ -499,35 +515,39 @@ Row Number|Cool Last Name|
 ----------+--------------+
     287206|shaker        |
 
--- Find the count of all the palindromes (Excluding single and two letter words)
+-- 19. Find the count of all the palindromes (Excluding single and two letter words)
 
 SELECT
-	COUNT(*) AS n_palindromes
+	COUNT(*) AS palindrome_count
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD = REVERSE(WORD)
-	AND LENGTH(WORD) >= 3;
+	-- REVERSE() Function reverses the order of the string (jaime = emiaj)
+	words = REVERSE(words) -- Filter words that are spelled the same in reverse order (palindrome).
+AND -- AND OPERATOR gives another condition query MUST follow.
+	LENGTH(words) >= 3; -- Filter words whose character length is 3 or greater.
 
 -- Results:
 
-n_palindromes|
--------------+
-          193|
+palindrome_count|
+----------------+
+             193|
 
--- Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
+-- 20. Find the first 10 of all the palindromes that begin with the letter 'r' (Excluding single and two letter words)
 
 SELECT
-	WORD AS r_palindromes
+	words AS r_palindromes
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD = REVERSE(WORD)
-	AND LENGTH(WORD) >= 3
-	AND word LIKE 'r%'
+	words = REVERSE(words) -- Filter words that are spelled the same in reverse order (palindrome).
+AND 
+	LENGTH(words) >= 3 -- Filter words whose character length is 3 or greater.
+AND 
+	words LIKE 'r%' -- Filter words that begin with the letter 'r'.
 ORDER BY
-	WORD
-LIMIT 10;
+	words
+LIMIT 10; -- LIMIT the first 10 records.
 
 -- Results:
 
