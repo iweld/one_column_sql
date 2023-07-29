@@ -564,44 +564,49 @@ rever        |
 reviver      |
 rotator      |
 
--- Give me the 15th palindrome (Excluding single and double letter words) 
+-- 21. Return the 15th palindrome (Excluding single and double letter words) 
 -- of words that start with the letter 's'
 
 -- Using LIMIT/OFFSET
 
 SELECT
-	WORD AS "15th_s_palindrome"
+	words AS "15th_s_palindrome"
 FROM
-	WORDS
+	dictionary_challenge.word_list
 WHERE
-	WORD = REVERSE(WORD)
-	AND LENGTH(WORD) >= 3
-	AND word LIKE 's%'
+	words = REVERSE(words)
+AND 
+	LENGTH(words) >= 3
+AND 
+	words LIKE 's%'
 ORDER BY
-	WORD
-LIMIT 1 
-OFFSET 14;
+	words
+LIMIT 1 -- LIMIT the TOP result
+OFFSET 14; -- The OFFSET clause allow to begin at a specific record and omit the rest that come before.
 
 -- USING ROW_NUMBER() function.
 
 WITH get_nth_palindrome as (
 	SELECT
-		WORD,
+		words,
 		ROW_NUMBER() OVER () AS rn
 	FROM
-		WORDS
+		dictionary_challenge.word_list
 	WHERE
-		WORD = REVERSE(WORD)
-		AND LENGTH(WORD) >= 3
-		AND word LIKE 's%'
+		words = REVERSE(words)
+	AND 
+		LENGTH(words) >= 3
+	AND 
+		words LIKE 's%'
 	ORDER BY
-		WORD
+		words
 )
 SELECT
-	word AS "15th_s_palindrome"
+	words AS "15th_s_palindrome"
 FROM
 	get_nth_palindrome
-WHERE rn = 15;
+WHERE 
+	rn = 15; -- FILTER the 15th row number given to the word in the cte above.
 
 -- Results:
 
@@ -609,18 +614,25 @@ WHERE rn = 15;
 -----------------+
 sooloos          |
 
--- Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
+-- 22. Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
+
+-- An Anadrome is a word which forms a different word when spelled backwards.
 
 SELECT
-	word,
-	reverse(word) AS anadrome
+	words,
+	reverse(words) AS anadrome
 FROM
-	words
-WHERE reverse(word) IN (SELECT word FROM words)
-AND word <> reverse(word)
-AND length(word) >= 4
-AND word LIKE 'b%'
-LIMIT 10;
+	dictionary_challenge.word_list
+WHERE 
+	reverse(words) IN (SELECT words FROM dictionary_challenge.word_list) -- FILTER if the word in reverse exists in the table.
+AND 
+	words <> reverse(words) -- FILTER out palindromes
+AND 
+	length(words) >= 4 -- FILTER words with 4 or more characters.
+AND 
+	words LIKE 'b%'
+LIMIT 
+	10; -- Display the top 10 ONLY.
 
 -- Results:
 
@@ -637,23 +649,25 @@ bares |serab   |
 barf  |frab    |
 barger|regrab  |
 
--- Find the row number for every month of the year and
--- sort them in chronological order
+-- 23. Find the row number for every month of the year and
+-- sort them in chronological order and convert the first letter 
+-- of every word to uppercase.
 
+-- Use a CTE to give every word a unique row number
 WITH get_month_row_number AS (
 	SELECT
-		WORDS.*,
-		ROW_NUMBER() OVER() AS ROW_NUM
+		words,
+		ROW_NUMBER() OVER() AS row_num
 	FROM
-		WORDS
+		dictionary_challenge.word_list
 )
 SELECT
-	ROW_NUM AS "Row Number",
-	WORD AS "Month"
+	row_num AS "Row Number", -- SELECT a row number
+	INITCAP(words) AS "Month" -- Use the INITCAP() function to capitalize the first letter.
 FROM
 	get_month_row_number
 WHERE
-	WORD IN (
+	words IN ( -- Use the IN operator to filter only words IN list.
 	'january',
 	'february',
 	'march',
@@ -667,24 +681,25 @@ WHERE
 	'november',
 	'december')
 ORDER BY
-	TO_DATE(WORD, 'Month');
+	-- TO_DATE() function converts a string TO a date which can be sorted chronologicaly.
+	TO_DATE(words, 'Month');
 
 -- Results:
 
 Row Number|Month    |
 ----------+---------+
-    160354|january  |
-    110743|february |
-    179890|march    |
-     18069|april    |
-    177740|may      |
-    162341|june     |
-    162225|july     |
-     23405|august   |
-    285651|september|
-    211036|october  |
-    209152|november |
-     78173|december |
+    160354|January  |
+    110744|February |
+    179890|March    |
+     18070|April    |
+    177740|May      |
+    162341|June     |
+    162225|July     |
+     23405|August   |
+    285651|September|
+    211041|October  |
+    209161|November |
+     78174|December |
      
 -- Create a function that returns the number of words between a low and high letter count.
  

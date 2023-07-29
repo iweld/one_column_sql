@@ -778,18 +778,85 @@ LIMIT 10; -- LIMIT the first 10 records.
 
 ##### Expected Results:
 
-r_palindromes|
--------------|
-radar        |
-redder       |
-refer        |
-reifier      |
-renner       |
-repaper      |
-retter       |
-rever        |
-reviver      |
-rotator      |
+15th_s_palindrome|
+-----------------|
+sooloos          |
+
+</p>
+<details>
+  <summary>Click to expand answer #1!</summary>
+
+  ##### Answer
+  ```sql
+-- Using LIMIT/OFFSET
+
+SELECT
+	words AS "15th_s_palindrome"
+FROM
+	dictionary_challenge.word_list
+WHERE
+	words = REVERSE(words)
+AND 
+	LENGTH(words) >= 3
+AND 
+	words LIKE 's%'
+ORDER BY
+	words
+LIMIT 1 -- LIMIT the TOP result
+OFFSET 14; -- The OFFSET clause allow to begin at a specific record and omit the rest that come before.
+```
+</details>
+<details>
+  <summary>Click to expand answer #2!</summary>
+
+  ##### Answer
+  ```sql
+-- USING ROW_NUMBER() function.
+
+WITH get_nth_palindrome as (
+	SELECT
+		words,
+		ROW_NUMBER() OVER () AS rn
+	FROM
+		dictionary_challenge.word_list
+	WHERE
+		words = REVERSE(words)
+	AND 
+		LENGTH(words) >= 3
+	AND 
+		words LIKE 's%'
+	ORDER BY
+		words
+)
+SELECT
+	words AS "15th_s_palindrome"
+FROM
+	get_nth_palindrome
+WHERE 
+	rn = 15; -- FILTER the 15th row number given to the word in the cte above.
+```
+</details>
+<br>
+<h4 name="q22">22.  Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.</h4>
+
+An **Anadrome** is a word which forms a different word when spelled backwards.
+
+<p>
+
+##### Expected Results:
+
+words |anadrome|
+------|--------|
+bakra |arkab   |
+bals  |slab    |
+bank  |knab    |
+bans  |snab    |
+bara  |arab    |
+barb  |brab    |
+bard  |drab    |
+bares |serab   |
+barf  |frab    |
+barger|regrab  |
 
 </p>
 <details>
@@ -798,69 +865,83 @@ rotator      |
   ##### Answer
   ```sql
 SELECT
-	words AS r_palindromes
+	words,
+	reverse(words) AS anadrome
 FROM
 	dictionary_challenge.word_list
-WHERE
-	words = REVERSE(words) -- Filter words that are spelled the same in reverse order (palindrome).
+WHERE 
+	reverse(words) IN (SELECT words FROM dictionary_challenge.word_list) -- FILTER if the word in reverse exists in the table.
 AND 
-	LENGTH(words) >= 3 -- Filter words whose character length is 3 or greater.
+	words <> reverse(words) -- FILTER out palindromes
 AND 
-	words LIKE 'r%' -- Filter words that begin with the letter 'r'.
-ORDER BY
-	words
-LIMIT 10; -- LIMIT the first 10 records.
+	length(words) >= 4 -- FILTER words with 4 or more characters.
+AND 
+	words LIKE 'b%'
+LIMIT 
+	10; -- Display the top 10 ONLY.
 ```
 </details>
 <br>
-#### Return the 15th palindrome (Excluding single and double letter words) of words that start with the letter 's'
+<h4 name="q23">23.  Find the row number for every month of the year and sort them in chronological order and convert the first letter of every word to uppercase.</h4>
 
-````sql
-SELECT
-	WORD AS "15th_s_palindrome"
-FROM
-	WORDS
-WHERE
-	WORD = REVERSE(WORD)
-	AND LENGTH(WORD) >= 3
-	AND word LIKE 's%'
-ORDER BY
-	WORD
-LIMIT 1 
-OFFSET 14;
-````
+<p>
 
-❗  **Or** ❗
+##### Expected Results:
 
-#### Or use the ROW_NUMBER() window function.
+Row Number|Month    |
+----------|---------|
+160354|January  |
+110744|February |
+179890|March    |
+18070|April    |
+177740|May      |
+162341|June     |
+162225|July     |
+23405|August   |
+285651|September|
+211041|October  |
+209161|November |
+78174|December |
 
-````sql
-WITH get_nth_palindrome as (
+</p>
+<details>
+  <summary>Click to expand answer!</summary>
+
+  ##### Answer
+  ```sql
+-- Use a CTE to give every word a unique row number
+WITH get_month_row_number AS (
 	SELECT
-		WORD,
-		ROW_NUMBER() OVER () AS rn
+		words,
+		ROW_NUMBER() OVER() AS row_num
 	FROM
-		WORDS
-	WHERE
-		WORD = REVERSE(WORD)
-		AND LENGTH(WORD) >= 3
-		AND word LIKE 's%'
-	ORDER BY
-		WORD
+		dictionary_challenge.word_list
 )
 SELECT
-	word AS "15th_s_palindrome"
+	row_num AS "Row Number", -- SELECT a row number
+	INITCAP(words) AS "Month" -- Use the INITCAP() function to capitalize the first letter.
 FROM
-	get_nth_palindrome
-WHERE rn = 15;
-````
-
-**Results:**
-
-15th_s_palindrome|
------------------|
-sooloos          |
-
+	get_month_row_number
+WHERE
+	words IN ( -- Use the IN operator to filter only words IN list.
+	'january',
+	'february',
+	'march',
+	'april',
+	'may',
+	'june',
+	'july',
+	'august',
+	'september',
+	'october',
+	'november',
+	'december')
+ORDER BY
+	-- TO_DATE() function converts a string TO a date which can be sorted chronologicaly.
+	TO_DATE(words, 'Month');
+```
+</details>
+<br>
 #### Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
 
 ````sql
