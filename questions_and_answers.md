@@ -42,7 +42,7 @@ DELIMITER ',';
 
 If you prefer using DML insert commands you can find the entire table and contents in
 
-./sql/words.sql
+[./sql/words.sql](https://github.com/iweld/one_column_sql/blob/main/sql/words.sql "./sql/words.sql") file.
 
 <h4 name="q1">1. How many words are in our table?</h4>
 
