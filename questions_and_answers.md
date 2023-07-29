@@ -8,7 +8,7 @@
 * These excercises use PostgreSQL v.13
 	* You may use any SQL database as these excercises use standard SQL.
 *  Name your new database 'one_column_sql' or whatever you like.
-*  All of these commands and instructions are also located in the dictionary_challenge.sql file.
+*  All of these commands and instructions are also located in the [dictionary_challenge.sql](https://github.com/iweld/one_column_sql/blob/main/dictionary_challenge.sql "dictionary_challenge.sql") file.
 
 #### Create a schema named 'dictionary_challenge'.
 
@@ -942,186 +942,177 @@ ORDER BY
 ```
 </details>
 <br>
-#### Write a query that returns the first 10 anadromes that contain 4 or more letters that start with the letter B.
+❗ **Note** ❗
 
-````sql
-SELECT
-	word,
-	reverse(word) AS anadrome
-FROM
-	words
-WHERE reverse(word) IN (SELECT word FROM words)
-AND word <> reverse(word)
-AND length(word) >= 4
-AND word LIKE 's%'
-LIMIT 10;
-````
+The following code uses PL/pgSQL which is an SQL Procedural Language.
 
-**Results:**
+PL/pgSQL is a loadable procedural language for the PostgreSQL database system. The design goals of PL/pgSQL were to create a loadable procedural language that
+* can be used to create functions, procedures, and triggers,
+* adds control structures to the SQL language,
+* can perform complex computations,
+* inherits all user-defined types, functions, procedures, and operators
 
-word  |anadrome|
-------|--------|
-bakra |arkab   |
-bals  |slab    |
-bank  |knab    |
-bans  |snab    |
-bara  |arab    |
-barb  |brab    |
-bard  |drab    |
-bares |serab   |
-barf  |frab    |
-barger|regrab  |
+https://www.postgresql.org/docs/current/plpgsql-overview.html
 
-#### Find the row number for every month of the year and sort them in chronological order
+<h4 name="q24">24.  Create a function that returns the number of words between a low and high letter count.  Return the number or words with character lengths between 4 and 7 characters.</h4>
 
-````sql
-WITH get_month_row_number AS (
-	SELECT
-		WORDS.*,
-		ROW_NUMBER() OVER() AS ROW_NUM
-	FROM
-		WORDS
-)
-SELECT
-	ROW_NUM AS "Row Number",
-	WORD AS "Month"
-FROM
-	get_month_row_number
-WHERE
-	WORD IN (
-	'january',
-	'february',
-	'march',
-	'april',
-	'may',
-	'june',
-	'july',
-	'august',
-	'september',
-	'october',
-	'november',
-	'december')
-ORDER BY
-	TO_DATE(WORD, 'Month');
-````
+<p>
 
-**Results:**
-
-Row Number|Month    |
-----------|---------|
-160354|january  |
-110743|february |
-179890|march    |
-18069|april    |
-177740|may      |
-162341|june     |
-162225|july     |
-23405|august   |
-285651|september|
-211036|october  |
-209152|november |
-78173|december |
-
-#### Create a function that returns the number of words between a low and high letter count.
-
-````sql
-CREATE FUNCTION get_word_count(l_from int, l_to int)
-RETURNS int
-LANGUAGE plpgsql
-AS
-$$
-	DECLARE
-		word_count int;
-	BEGIN
-		SELECT
-			count(*)
-		INTO word_count
-		FROM words
-		WHERE length(word) BETWEEN l_from AND l_to;
-	
-	RETURN word_count;
-	END;
-$$;
-
-SELECT get_word_count(4, 7);
-````
-
-**Results:**
+##### Expected Results:
 
 get_word_count|
 --------------|
 94976|
 
-#### Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
+</p>
+<details>
+  <summary>Click to expand answer!</summary>
 
-````sql
-DROP FUNCTION count_the_vowels;
+  ##### Answer
+  ```sql
+--DROP FUNCTION get_word_count;     
+
+-- Create a new function that takes to integers. A lower limit and higher limit.     
+CREATE FUNCTION get_word_count(l_from int, l_to int)
+-- This function returns an integer.
+RETURNS int
+-- Define the language
+LANGUAGE plpgsql
+AS
+$$
+	-- Declare variables
+	DECLARE
+		word_count int;
+	-- Begin the query
+	BEGIN
+		SELECT
+			count(*)
+		-- Insert the selected value into our declared variable.
+		INTO 
+			word_count
+		FROM 
+			dictionary_challenge.word_list
+		WHERE 
+			-- Use the BETWEEN operator to select words with lengths BETWEEN our upper and lower limit
+			length(words) BETWEEN l_from AND l_to;
+	-- Return the value of the variable
+	RETURN word_count;
+	-- End the function
+	END;
+$$;
+
+-- Call the function and give an upper and lower integer range.
+SELECT get_word_count(4, 7);
+```
+</details>
+<br>
+
+<h4 name="q25">25.  Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.</h4>
+
+<p>
+
+##### Expected Results:
+
+❗ **Note** ❗ Your results will vary because the words are radomly drawn everytime the function is executed.  However, the columns should function the same.
+
+words      |letter_count|vowel_count|difference|vowel_percentage|consonant_percentage|
+-----------|------------|-----------|----------|----------------|--------------------|
+mavie      |           5|          3|         2|           60.00|               40.00|
+mavies     |           6|          3|         3|           50.00|               50.00|
+mavin      |           5|          2|         3|           40.00|               60.00|
+mavins     |           6|          2|         4|           33.33|               66.67|
+mavis      |           5|          2|         3|           40.00|               60.00|
+mavises    |           7|          3|         4|           42.86|               57.14|
+mavortian  |           9|          4|         5|           44.44|               55.56|
+mavourneen |          10|          5|         5|           50.00|               50.00|
+mavournin  |           9|          4|         5|           44.44|               55.56|
+mavrodaphne|          11|          4|         7|           36.36|               63.64|
+
+</p>
+<details>
+  <summary>Click to expand answer!</summary>
+
+  ##### Answer
+  ```sql
+-- Create a function that counts the numer of vowels in a word.                  
+--DROP FUNCTION count_the_vowels;
 
 CREATE FUNCTION count_the_vowels(current_word text)
+-- Function returns an integer
 RETURNS int
 LANGUAGE plpgsql
 AS
 $$
+	-- Declare variables
 	DECLARE 
 		vowel_count int;
 	BEGIN
 		SELECT
-			length(current_word) - 
-				length(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', ''))
+			-- Replace vowels with '' then subtract the length of the word with the removed vowels word length.
+			-- So we are subtracting the original length against the length where vowels are removed to get the difference.
+			length(current_word) - length(
+								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
+								)
 			INTO vowel_count;
 		RETURN vowel_count;
 	END;
 $$;
-````
 
-#### Create a temp table for word metrics.
+-- Create a temp table for word metrics.
 
-````sql
-DROP TABLE IF EXISTS word_metrics;
+--DROP TABLE IF EXISTS word_metrics;
 CREATE TEMP TABLE word_metrics AS (
 	SELECT 
-		word,
-		length(word) AS letter_count,
-		count_the_vowels(word) AS vowel_count,
-		length(word) - count_the_vowels(word) AS difference,
-		round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS vowel_percentage,
-		100 - round(100 * count_the_vowels(word) / length(word)::NUMERIC, 2) AS consonant_percentage
+		words,
+		length(words) AS letter_count,
+		count_the_vowels(words) AS vowel_count,
+		length(words) - count_the_vowels(words) AS difference,
+		round(100 * count_the_vowels(words) / length(words)::NUMERIC, 2) AS vowel_percentage,
+		100 - round(100 * count_the_vowels(words) / length(words)::NUMERIC, 2) AS consonant_percentage
 	FROM
-		words
-	WHERE length(word) >= 3
+		dictionary_challenge.word_list
+	WHERE length(words) >= 3
 );
 
 SELECT 
 	* 
 FROM word_metrics
-LIMIT 10;
-````
+-- We use the RANDOM function to generate a random number to OFFSET.  
+OFFSET floor(random() * 370103) LIMIT 10;
+```
+</details>
+<br>
 
-**Results:**
+<h4 name="q26">26.  Find the anagrams.</h4>
 
-word  |letter_count|vowel_count|difference|vowel_percentage|consonant_percentage|
-------|------------|-----------|----------|----------------|--------------------|
-aaa   |           3|          3|         0|          100.00|                0.00|
-aah   |           3|          2|         1|           66.67|               33.33|
-aahed |           5|          3|         2|           60.00|               40.00|
-aahing|           6|          3|         3|           50.00|               50.00|
-aahs  |           4|          2|         2|           50.00|               50.00|
-aal   |           3|          2|         1|           66.67|               33.33|
-aalii |           5|          4|         1|           80.00|               20.00|
-aaliis|           6|          4|         2|           66.67|               33.33|
-aals  |           4|          2|         2|           50.00|               50.00|
-aam   |           3|          2|         1|           66.67|               33.33|
+<p>
 
+##### Expected Results:
 
-#### Find the anagrams.
+❗ **Note** ❗ This query can take a long time to execute. To shorten execution time, we will only look for words that start with the letter 'R' and are only 4 or 5 characters in length.  We will also limit the results to the first 10 records.
 
-❗  **Note** ❗
+word |anagrams                    |
+-----|----------------------------|
+raad |adar, arad, rada            |
+raash|asarh, haars, haras, sarah  |
+rabal|labra                       |
+rabat|barat                       |
+rabi |abir, abri, bari            |
+rabic|baric, carib                |
+rabid|barid, bidar, braid         |
+rabin|abrin, bairn, brain, brian  |
+rabot|abort, boart, tabor         |
+race |acer, acre, care, cera, crea|
 
-##### This query can take a long time to execute. To shorten execution time, we will only look for words that start with the letter 'R' and are only 4 or 5 characters in length.  We will also limit the results to the first 10.
+</p>
+<details>
+  <summary>Click to expand answer!</summary>
 
-````sql
+  ##### Answer
+  ```sql
 -- Create a function that sorts word into alphabetical order
-DROP FUNCTION sort_word;
+
+--DROP FUNCTION sort_word;
 
 CREATE FUNCTION sort_word (my_word text)
 RETURNS TEXT
@@ -1146,24 +1137,25 @@ DROP TABLE IF EXISTS sorted_words;
 CREATE TEMP TABLE sorted_words AS (
 	SELECT
 		ROW_NUMBER() OVER () AS rn,
-		word,
-		sort_word(word) AS sorted
+		words,
+		sort_word(words) AS sorted
 	FROM
-		words
+		dictionary_challenge.word_list
 );
 
 -- Test the new temp table
 SELECT * FROM sorted_words;
 
+-- Using a CTE, check for Anagrams
 WITH get_anagram AS (
 	SELECT 
-		s1.word AS word,
+		s1.words AS word,
 		CASE
-			-- Only check words of the same length
+			-- Only check words of the same length.
 			WHEN length(s1.sorted) = length(s2.sorted) THEN
 				CASE
 					-- If sorted words are the same, they contain the same letters and are anagrams
-					WHEN s1.sorted = s2.sorted THEN s2.word
+					WHEN s1.sorted = s2.sorted THEN s2.words
 					ELSE NULL
 				END
 		END AS anagram
@@ -1177,29 +1169,22 @@ SELECT
 	string_agg(anagram, ', ') AS anagrams
 FROM
 	get_anagram
-WHERE anagram IS NOT NULL
-AND length(word) > 3
-AND length(word) <= 5
-AND word LIKE 'r%'
-GROUP BY word
-ORDER BY word
+WHERE 
+	anagram IS NOT NULL
+AND 
+	length(word) > 3
+AND 
+	length(word) <= 5
+AND 
+	word LIKE 'r%'
+GROUP BY 
+	word
+ORDER BY 
+	word
 LIMIT 10;
-````
-
-**Results:**
-
-word |anagrams                    |
------|----------------------------|
-raad |adar, arad, rada            |
-raash|asarh, haars, haras, sarah  |
-rabal|labra                       |
-rabat|barat                       |
-rabi |abir, abri, bari            |
-rabic|baric, carib                |
-rabid|barid, bidar, braid         |
-rabin|abrin, bairn, brain, brian  |
-rabot|abort, boart, tabor         |
-race |acer, acre, care, cera, crea|
+```
+</details>
+<br>
 
 
 
