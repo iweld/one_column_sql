@@ -38,6 +38,8 @@ Check out [My Questions and Answers](https://github.com/iweld/one_column_sql/blo
 
 Check out [My Questions and Answers](https://github.com/iweld/one_column_sql/blob/main/questions_and_answers.md "My Questions and Answers").
 
-## Datasets used
+## Dataset used
 - <strong>words</strong>: A simple one column table with english words.
 - <strong>csv</strong>/<strong>words.csv</strong>: CSV file containing one column of english words
+
+:exclamation: If you found the repository helpful, please consider giving it a :star:. Thanks! :exclamation:
