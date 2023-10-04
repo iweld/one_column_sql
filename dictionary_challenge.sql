@@ -4,7 +4,7 @@
 
 -- Create Schema
 
-CREATE SCHEMA dictionary_challenge;
+CREATE SCHEMA IF NOT EXISTS dictionary_challenge;
 SET search_path = dictionary_challenge;
 
 
@@ -17,13 +17,10 @@ CREATE TABLE dictionary_challenge.word_list (
 );
 
 -- Copy csv into our new table.  Note the delimiter.
--- If you are using Docker, you must copy the CSV file to the docker container.
--- Console Example: $ docker cp ./csv/words.csv your-container-name-postgres-1:/tmp
 
 COPY dictionary_challenge.word_list
-FROM
-'/tmp/words.csv'
-DELIMITER ',';
+FROM '/var/lib/postgresql/source_data/csv/words.csv'
+WITH DELIMITER ',' CSV;
 
 -- If you prefer using DML insert commands you can find the entire table and contents in '/sql/words.sql'
 
@@ -92,11 +89,11 @@ end_with_j_count|
 -- Create a CTE (Common Table Expression) to get Word Count for X length words.
 WITH get_word_length_count AS (         
 	SELECT
-		char_length(words) AS word_length, -- char_length functions returns the numbers of characters in a word.
-		count(*) AS word_count
+		CHAR_LENGTH(words) AS word_length, -- char_length functions returns the numbers of characters in a word.
+		COUNT(*) AS word_count
 	FROM
 		dictionary_challenge.word_list
-	WHERE char_length(words) > 1 -- Filter for words that contain 2 or characters.
+	WHERE CHAR_LENGTH(words) > 1 -- Filter for words that contain 2 or characters.
 	GROUP BY
 		word_length  -- Results MUST be grouped when using Aggregate functions (count())
 	ORDER BY -- Order the results in ascending order (default.)
@@ -105,7 +102,7 @@ WITH get_word_length_count AS (
 SELECT
 	word_length,
 	word_count,
-	round(100 * word_count / (SELECT sum(word_count) 
+	ROUND(100 * word_count / (SELECT SUM(word_count) 
 		FROM get_word_length_count), 4) AS count_percentage -- Round the results to the 4th decimal place.
 FROM
 	get_word_length_count -- Select from the results of the CTE above.
@@ -177,9 +174,9 @@ WHERE
 
 -- Results:
 
-count|
------+
-   13|
+shaker_count|
+------------+
+          13|
 
 -- 13? Must be a lucky word.  
 
@@ -213,7 +210,7 @@ shakerlike             |
      
 SELECT
 	-- The upper() function convers letters to uppercase. lower() to lowercase and initcap() to capitalize the first letter of a string.
-	upper(words) || ' (' || length(words) || ')' AS uppercase_and_length -- In Postgres we could use the concat() function OR || TO concatnate strings
+	UPPER(words) || ' (' || LENGTH(words) || ')' AS uppercase_and_length -- In Postgres we could use the concat() function OR || TO concatnate strings
 FROM
 	dictionary_challenge.word_list
 WHERE
@@ -275,14 +272,16 @@ WITH get_lag_lead AS (
 		words,
 		LAG(words) OVER () AS prev_word,
 		LEAD(words) OVER () AS next_word
-	FROM dictionary_challenge.word_list
+	FROM 
+		dictionary_challenge.word_list
 )
 SELECT
 	prev_word AS before_shaker,
 	next_word AS after_shaker
-from
+FROM
 	get_lag_lead
-WHERE words = 'shaker';
+WHERE 
+	words = 'shaker';
 
 -- Results:
 
@@ -299,14 +298,16 @@ WITH get_lag_lead AS (
 		-- LEAD/LAG functions can accept a second parameter that will move X amount of rows.
 		LAG(words, 5) OVER () AS prev_word,
 		LEAD(words, 10) OVER () AS next_word
-	FROM dictionary_challenge.word_list
+	FROM 
+		dictionary_challenge.word_list
 )
 SELECT
 	prev_word AS five_before_shaker,
 	next_word AS ten_after_shaker
-from
+FROM
 	get_lag_lead
-WHERE words = 'shaker';
+WHERE 
+	words = 'shaker';
 
 -- Results:
 
@@ -321,7 +322,7 @@ shaken            |shakespearean   |
 
 SELECT
 	words AS longest_word,
-	length(words) AS word_length
+	LENGTH(words) AS word_length
 FROM
 	dictionary_challenge.word_list
 ORDER BY 
@@ -332,14 +333,14 @@ longest_word                   |word_length|
 -------------------------------+-----------+
 dichlorodiphenyltrichloroethane|         31|
 
--- Using the DENSE_RANK() function
 
 -- Using the DENSE_RANK() function within a CTE
 WITH get_word_length_rank AS (
 	SELECT 
 		words AS each_word, 
-		length(words) AS word_length,
-		DENSE_RANK() OVER (ORDER BY length(words) DESC) AS rnk -- This function will rank words by their length.  We order by descending order.
+		LENGTH(words) AS word_length,
+		DENSE_RANK() OVER (
+			ORDER BY LENGTH(words) DESC) AS rnk -- This function will rank words by their length.  We order by descending order.
 	FROM
 		dictionary_challenge.word_list
 )
@@ -363,8 +364,9 @@ dichlorodiphenyltrichloroethane|         31|
 WITH get_word_length_rank AS (
 	SELECT 
 		words AS each_word, 
-		length(words) AS word_length,
-		DENSE_RANK() OVER (ORDER BY length(words) DESC) AS rnk
+		LENGTH(words) AS word_length,
+		DENSE_RANK() OVER (
+			ORDER BY LENGTH(words) DESC) AS rnk
 	FROM
 		dictionary_challenge.word_list
 )
@@ -419,11 +421,11 @@ rounded_length|
 -- The PERCENTILE_CONT function returns the value that corresponds to the specified percentile given a sort specification.          
 SELECT
 	PERCENTILE_CONT(0.25) WITHIN GROUP(
-	ORDER BY length(words)) AS "25th_percentile",
+		ORDER BY LENGTH(words)) AS "25th_percentile",
 	PERCENTILE_CONT(0.5) WITHIN GROUP(
-	ORDER BY length(words)) AS median_length,
+		ORDER BY LENGTH(words)) AS median_length,
 	PERCENTILE_CONT(0.9) WITHIN GROUP(
-	ORDER BY length(words)) AS "90th_percentile"
+		ORDER BY LENGTH(words)) AS "90th_percentile"
 FROM
 	dictionary_challenge.word_list;
 
@@ -451,7 +453,7 @@ SELECT
 	letter,
 	word_count,
 	-- Find the percentage from the total count of words.  You must cast to numeric to be able to round.
-	round((word_count::float / (SELECT count(*) FROM dictionary_challenge.word_list)*100)::NUMERIC, 2) AS total_percentage
+	round((word_count::float / (SELECT COUNT(*) FROM dictionary_challenge.word_list)*100)::NUMERIC, 2) AS total_percentage
 FROM
 	get_letter_count
 GROUP BY 
@@ -620,15 +622,15 @@ sooloos          |
 
 SELECT
 	words,
-	reverse(words) AS anadrome
+	REVERSE(words) AS anadrome
 FROM
 	dictionary_challenge.word_list
 WHERE 
-	reverse(words) IN (SELECT words FROM dictionary_challenge.word_list) -- FILTER if the word in reverse exists in the table.
+	REVERSE(words) IN (SELECT words FROM dictionary_challenge.word_list) -- FILTER if the word in reverse exists in the table.
 AND 
-	words <> reverse(words) -- FILTER out palindromes
+	words <> REVERSE(words) -- FILTER out palindromes
 AND 
-	length(words) >= 4 -- FILTER words with 4 or more characters.
+	LENGTH(words) >= 4 -- FILTER words with 4 or more characters.
 AND 
 	words LIKE 'b%'
 LIMIT 
@@ -721,20 +723,20 @@ Row Number|Month    |
 --DROP FUNCTION get_word_count;     
 
 -- Create a new function that takes to integers. A lower limit and higher limit.     
-CREATE FUNCTION get_word_count(l_from int, l_to int)
+CREATE FUNCTION get_word_count(l_from INT, l_to INT)
 -- This function returns an integer.
-RETURNS int
+RETURNS INT
 -- Define the language
 LANGUAGE plpgsql
 AS
 $$
 	-- Declare variables
 	DECLARE
-		word_count int;
+		word_count INT;
 	-- Begin the query
 	BEGIN
 		SELECT
-			count(*)
+			COUNT(*)
 		-- Insert the selected value into our declared variable.
 		INTO 
 			word_count
@@ -742,7 +744,7 @@ $$
 			dictionary_challenge.word_list
 		WHERE 
 			-- Use the BETWEEN operator to select words with lengths BETWEEN our upper and lower limit
-			length(words) BETWEEN l_from AND l_to;
+			LENGTH(words) BETWEEN l_from AND l_to;
 	-- Return the value of the variable
 	RETURN word_count;
 	-- End the function
@@ -764,48 +766,50 @@ get_word_count|
 -- Create a function that counts the numer of vowels in a word.                  
 --DROP FUNCTION count_the_vowels;
 
-CREATE FUNCTION count_the_vowels(current_word text)
+CREATE FUNCTION count_the_consonants(current_word TEXT)
 -- Function returns an integer
-RETURNS int
+RETURNS INT
 LANGUAGE plpgsql
 AS
 $$
 	-- Declare variables
 	DECLARE 
-		vowel_count int;
+		consonant_count INT;
 	BEGIN
 		SELECT
 			-- Replace vowels with '' then subtract the length of the word with the removed vowels word length.
 			-- So we are subtracting the original length against the length where vowels are removed to get the difference.
-			length(current_word) - length(
+			LENGTH(current_word) - LENGTH(REGEXP_REPLACE(LOWER(current_word), '[aeiou]', '', 'gi'))
+			
+			/*LENGTH(
 								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
-								)
-			INTO vowel_count;
-		RETURN vowel_count;
+								)*/
+			INTO consonant_count;
+		RETURN consonant_count;
 	END;
 $$;
 
 -- Create a temp table for word metrics.
 
---DROP TABLE IF EXISTS word_metrics;
+DROP TABLE IF EXISTS word_metrics;
 CREATE TEMP TABLE word_metrics AS (
 	SELECT 
 		words,
-		length(words) AS letter_count,
-		count_the_vowels(words) AS vowel_count,
-		length(words) - count_the_vowels(words) AS difference,
-		round(100 * count_the_vowels(words) / length(words)::NUMERIC, 2) AS vowel_percentage,
-		100 - round(100 * count_the_vowels(words) / length(words)::NUMERIC, 2) AS consonant_percentage
+		LENGTH(words) AS letter_count,
+		count_the_consonants(words) AS vowel_count,
+		LENGTH(words) - count_the_consonants(words) AS consonants_count,
+		ROUND(100 * count_the_consonants(words) / LENGTH(words)::NUMERIC, 2) AS consonants_percentage,
+		100 - round(100 * count_the_consonants(words) / LENGTH(words)::NUMERIC, 2) AS vowel_percentage
 	FROM
 		dictionary_challenge.word_list
-	WHERE length(words) >= 3
+	WHERE LENGTH(words) >= 3
 );
 
 SELECT 
 	* 
 FROM word_metrics
 -- We use the RANDOM function to generate a random number to OFFSET.  
-OFFSET floor(random() * 370103) LIMIT 10;
+OFFSET FLOOR(RANDOM() * 370103) LIMIT 10;
 
 -- Results:
 
@@ -833,7 +837,7 @@ mavrodaphne|          11|          4|         7|           36.36|               
 
 --DROP FUNCTION sort_word;
 
-CREATE FUNCTION sort_word (my_word text)
+CREATE FUNCTION sort_word (my_word TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
 AS
@@ -841,10 +845,10 @@ $$
 	DECLARE sorted_word TEXT;
 	BEGIN
 		-- 2. Aggregate sorted array back into a string
-		SELECT string_agg(tmp.split_word, '') AS sorted_str
+		SELECT STRING_AGG(tmp.split_word, '') AS sorted_str
 		FROM
 			-- 1. Split the word into an array and sort array after unnesting
-			(SELECT UNNEST(regexp_split_to_array(my_word, '')) AS split_word ORDER BY split_word) AS tmp
+			(SELECT UNNEST(REGEXP_SPLIT_TO_ARRAY(my_word, '')) AS split_word ORDER BY split_word) AS tmp
 		INTO sorted_word;
 	RETURN sorted_word;
 	END;
@@ -871,7 +875,7 @@ WITH get_anagram AS (
 		s1.words AS word,
 		CASE
 			-- Only check words of the same length.
-			WHEN length(s1.sorted) = length(s2.sorted) THEN
+			WHEN LENGTH(s1.sorted) = LENGTH(s2.sorted) THEN
 				CASE
 					-- If sorted words are the same, they contain the same letters and are anagrams
 					WHEN s1.sorted = s2.sorted THEN s2.words
@@ -885,15 +889,15 @@ WITH get_anagram AS (
 SELECT
 	word,
 	-- Aggregate anagrams into the same row and seperate with a comma
-	string_agg(anagram, ', ') AS anagrams
+	STRING_AGG(anagram, ', ') AS anagrams
 FROM
 	get_anagram
 WHERE 
 	anagram IS NOT NULL
 AND 
-	length(word) > 3
+	LENGTH(word) > 3
 AND 
-	length(word) <= 5
+	LENGTH(word) <= 5
 AND 
 	word LIKE 'r%'
 GROUP BY 
