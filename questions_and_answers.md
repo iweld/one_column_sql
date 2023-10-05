@@ -1020,18 +1020,18 @@ SELECT get_word_count(4, 7);
 
 ❗ **Note** ❗ Your results will vary because the words are radomly drawn everytime the function is executed.  However, the columns should function the same.
 
-words      |letter_count|vowel_count|difference|vowel_percentage|consonant_percentage|
------------|------------|-----------|----------|----------------|--------------------|
-mavie      |           5|          3|         2|           60.00|               40.00|
-mavies     |           6|          3|         3|           50.00|               50.00|
-mavin      |           5|          2|         3|           40.00|               60.00|
-mavins     |           6|          2|         4|           33.33|               66.67|
-mavis      |           5|          2|         3|           40.00|               60.00|
-mavises    |           7|          3|         4|           42.86|               57.14|
-mavortian  |           9|          4|         5|           44.44|               55.56|
-mavourneen |          10|          5|         5|           50.00|               50.00|
-mavournin  |           9|          4|         5|           44.44|               55.56|
-mavrodaphne|          11|          4|         7|           36.36|               63.64|
+words           |letter_count|vowel_count|consonants_count|consonants_percentage|vowel_percentage|
+----------------|------------|-----------|----------------|---------------------|----------------|
+nonfundamentally|          16|          5|              11|                31.25|           68.75|
+nonfunded       |           9|          3|               6|                33.33|           66.67|
+nonfungible     |          11|          4|               7|                36.36|           63.64|
+nonfuroid       |           9|          4|               5|                44.44|           55.56|
+nonfused        |           8|          3|               5|                37.50|           62.50|
+nonfusibility   |          13|          5|               8|                38.46|           61.54|
+nonfusible      |          10|          4|               6|                40.00|           60.00|
+nonfusion       |           9|          4|               5|                44.44|           55.56|
+nonfutile       |           9|          4|               5|                44.44|           55.56|
+nonfuturistic   |          13|          5|               8|                38.46|           61.54|
 
 </p>
 <details>
