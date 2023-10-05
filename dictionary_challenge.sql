@@ -453,7 +453,7 @@ SELECT
 	letter,
 	word_count,
 	-- Find the percentage from the total count of words.  You must cast to numeric to be able to round.
-	round((word_count::float / (SELECT COUNT(*) FROM dictionary_challenge.word_list)*100)::NUMERIC, 2) AS total_percentage
+	ROUND((word_count::FLOAT / (SELECT COUNT(*) FROM dictionary_challenge.word_list)*100)::NUMERIC, 2) AS total_percentage
 FROM
 	get_letter_count
 GROUP BY 
@@ -764,8 +764,7 @@ get_word_count|
 -- 25. Create a function that counts the number of vowels in a word for words greater than or equal to 3 letters long.
 
 -- Create a function that counts the numer of vowels in a word.                  
---DROP FUNCTION count_the_vowels;
-
+DROP FUNCTION count_the_vowels;
 CREATE FUNCTION count_the_consonants(current_word TEXT)
 -- Function returns an integer
 RETURNS INT
@@ -780,10 +779,6 @@ $$
 			-- Replace vowels with '' then subtract the length of the word with the removed vowels word length.
 			-- So we are subtracting the original length against the length where vowels are removed to get the difference.
 			LENGTH(current_word) - LENGTH(REGEXP_REPLACE(LOWER(current_word), '[aeiou]', '', 'gi'))
-			
-			/*LENGTH(
-								REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(lower(current_word), 'a', ''), 'e', ''), 'i', ''), 'o', ''), 'u', '')
-								)*/
 			INTO consonant_count;
 		RETURN consonant_count;
 	END;
@@ -835,8 +830,7 @@ mavrodaphne|          11|          4|         7|           36.36|               
 
 -- Create a function that sorts word into alphabetical order
 
---DROP FUNCTION sort_word;
-
+DROP FUNCTION sort_word;
 CREATE FUNCTION sort_word (my_word TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
